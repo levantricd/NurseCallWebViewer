@@ -8,6 +8,7 @@ builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<EndpointService>();
 builder.Services.AddScoped<ViewerService>();
 builder.Services.AddScoped<HistoryService>();
+builder.Services.AddScoped<CallService>();
 
 var app = builder.Build();
 
@@ -38,33 +39,10 @@ app.MapGet("/api/history", async (HistoryService service) =>
     return Results.Ok(history);
 });
 
-app.MapGet("/api/calls", async (CodacoDb db) =>
+app.MapGet("/api/calls", async (CallService service) =>
 {
-    const string sql = """
-        SELECT
-            idSegment,
-            idDepartment,
-            Room,
-            Bed,
-            TypeOfCall,
-            OrderIndex,
-            Priority,
-            CallerIp,
-            CallerTextA,
-            CallerTextB,
-            CallerExtBed,
-            PriorityCare,
-            NeatATOM_Event,
-            NeatATOM_Id,
-            AccesorEvent,
-            AccesorButtonId
-        FROM Calls
-        ORDER BY Priority DESC, OrderIndex ASC;
-        """;
-
-    var result = await db.QueryAsync(sql);
-
-    return Results.Text(result, "text/plain");
+    var calls = await service.GetActiveAsync();
+    return Results.Ok(calls);
 });
 
 app.Run();
