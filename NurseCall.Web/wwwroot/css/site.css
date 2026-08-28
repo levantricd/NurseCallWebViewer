@@ -1,0 +1,109 @@
+﻿* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f2f4f7;
+    color: #222;
+}
+
+.topbar {
+    height: 72px;
+    padding: 10px 24px;
+    background: #1f2937;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.topbar h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.subtitle {
+    font-size: 13px;
+    opacity: .7;
+}
+
+.system-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #22c55e;
+}
+
+#viewer {
+    padding: 20px;
+}
+
+.department {
+    margin-bottom: 24px;
+}
+
+.department-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.department-name {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.endpoint-count {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.endpoint-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.endpoint {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 5px solid #22c55e;
+    box-shadow: 0 1px 4px rgba(0,0,0,.12);
+}
+
+.endpoint.offline {
+    border-left-color: #ef4444;
+}
+
+.room {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.bed {
+    margin-top: 4px;
+    color: #6b7280;
+}
+
+.device {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.loading {
+    padding: 40px;
+    text-align: center;
+    color: #6b7280;
+}
