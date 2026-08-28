@@ -28,8 +28,8 @@ app.MapGet("/api/endpoints", async (EndpointService service) =>
 
 app.MapGet("/api/viewer", async (ViewerService service) =>
 {
-    var snapshot = await service.GetRawSnapshotAsync();
-    return Results.Text(snapshot, "text/plain");
+    var viewer = await service.GetAsync();
+    return Results.Ok(viewer);
 });
 
 app.MapGet("/api/history", async (HistoryService service) =>

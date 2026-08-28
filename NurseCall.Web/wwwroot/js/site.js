@@ -1,152 +1,84 @@
 ﻿async function loadViewer() {
     const viewer = document.getElementById("viewer");
+    const status = document.querySelector(".system-status");
 
     try {
-        const response = await fetch("/api/viewer");
+        const response = await fetch("/api/viewer", {
+            cache: "no-store"
+        });
 
         if (!response.ok) {
             throw new Error("HTTP " + response.status);
         }
 
-        const text = await response.text();
+        const departments = await response.json();
 
-        renderViewer(text);
+        renderViewer(departments);
 
-        document.querySelector(".system-status").innerHTML =
-            '<span class="status-dot"></span><span>Đang kết nối</span>';
+        status.innerHTML =
+            '<span class="status-dot"></span>' +
+            '<span>Đang kết nối</span>';
     }
     catch (error) {
         console.error(error);
 
         viewer.innerHTML =
-            '<div class="loading">Không thể tải dữ liệu Nurse Call.</div>';
+            '<div class="loading">' +
+            'Không thể tải dữ liệu Nurse Call.' +
+            '</div>';
 
-        document.querySelector(".system-status").innerHTML =
+        status.innerHTML =
             '<span class="status-dot offline-dot"></span>' +
             '<span>Mất kết nối</span>';
     }
 }
 
-async function loadHistory() {
-    const body = document.getElementById("history-body");
-    const status = document.getElementById("history-status");
 
-    try {
-        const response = await fetch("/api/history");
-
-        if (!response.ok) {
-            throw new Error("HTTP " + response.status);
-        }
-
-        const rows = await response.json();
-
-        renderHistory(rows);
-
-        status.textContent = rows.length + " sự kiện";
-    }
-    catch (error) {
-        console.error(error);
-
-        body.innerHTML =
-            '<tr><td colspan="8" class="loading">' +
-            'Không thể tải lịch sử.' +
-            '</td></tr>';
-
-        status.textContent = "Lỗi";
-    }
-}
-
-function renderViewer(text) {
+function renderViewer(departments) {
     const viewer = document.getElementById("viewer");
 
-    const lines = text
-        .split(/\r?\n/)
-        .filter(x => x.trim() !== "");
-
-    if (lines.length < 2) {
+    if (!departments || departments.length === 0) {
         viewer.innerHTML =
-            '<div class="loading">Không có dữ liệu endpoint.</div>';
+            '<div class="loading">Không có dữ liệu khoa.</div>';
         return;
     }
 
-    const headers = lines[0].split("\t");
-
-    const rows = lines.slice(1).map(line => {
-        const values = line.split("\t");
-        const row = {};
-
-        headers.forEach((header, index) => {
-            row[header] = values[index] ?? "";
-        });
-
-        return row;
-    });
-
-    const departments = {};
-
-    rows.forEach(row => {
-        const key = row.idDepartment;
-
-        if (!departments[key]) {
-            departments[key] = {
-                name: row.DepartmentName,
-                rows: []
-            };
-        }
-
-        departments[key].rows.push(row);
-    });
-
     viewer.innerHTML = "";
 
-    Object.values(departments).forEach(department => {
+    departments.forEach(department => {
         const section = document.createElement("section");
         section.className = "department";
+
+        const endpoints = department.endpoints || [];
+
+        const rooms = groupRooms(endpoints);
 
         const header = document.createElement("div");
         header.className = "department-header";
 
         header.innerHTML = `
-            <div class="department-name">
-                ${escapeHtml(department.name || "Không xác định")}
+            <div>
+                <div class="department-name">
+                    ${escapeHtml(department.name || "Không xác định")}
+                </div>
+
+                <div class="department-short-name">
+                    ${escapeHtml(department.shortName || "")}
+                </div>
             </div>
 
             <div class="endpoint-count">
-                ${department.rows.length} thiết bị
+                ${rooms.length} phòng
+                ·
+                ${endpoints.length} thiết bị
             </div>
         `;
 
         const grid = document.createElement("div");
-        grid.className = "endpoint-grid";
+        grid.className = "room-grid";
 
-        department.rows.forEach(row => {
-            const card = document.createElement("div");
-
-            const online =
-                row.State === "1" &&
-                row.ErrorCode === "0";
-
-            card.className =
-                "endpoint" + (online ? "" : " offline");
-
-            card.innerHTML = `
-                <div class="room">
-                    Phòng ${escapeHtml(row.Room)}
-                </div>
-
-                <div class="bed">
-                    Giường ${escapeHtml(row.Bed)}
-                </div>
-
-                <div class="device">
-                    ${escapeHtml(row.TypeName)}
-                </div>
-
-                <div class="device">
-                    PBX: ${escapeHtml(row.PbxId)}
-                </div>
-            `;
-
+        rooms.forEach(room => {
+            const card = createRoomCard(room);
             grid.appendChild(card);
         });
 
@@ -157,97 +89,155 @@ function renderViewer(text) {
     });
 }
 
-function renderHistory(rows) {
-    const body = document.getElementById("history-body");
 
-    if (!rows || rows.length === 0) {
-        body.innerHTML =
-            '<tr><td colspan="8" class="loading">' +
-            'Chưa có dữ liệu lịch sử.' +
-            '</td></tr>';
-        return;
-    }
+function groupRooms(endpoints) {
+    const rooms = {};
 
-    body.innerHTML = "";
+    endpoints.forEach(endpoint => {
+        const key = endpoint.room;
 
-    rows.forEach(row => {
-        const tr = document.createElement("tr");
+        if (!rooms[key]) {
+            rooms[key] = {
+                room: endpoint.room,
+                endpoints: []
+            };
+        }
 
-        const start = combineDateTime(
-            row.StartDate,
-            row.StartTime
-        );
-
-        const stop = combineDateTime(
-            row.StopDate,
-            row.StopTime
-        );
-
-        const duration = calculateDuration(start, stop);
-
-        tr.innerHTML = `
-            <td>${escapeHtml(start)}</td>
-            <td>${escapeHtml(row.idDepartment)}</td>
-            <td>${escapeHtml(row.Room)}</td>
-            <td>${escapeHtml(row.Bed)}</td>
-            <td>${escapeHtml(row.TypeOfCall)}</td>
-            <td>${escapeHtml(row.StartTime)}</td>
-            <td>${escapeHtml(row.StopTime)}</td>
-            <td>${escapeHtml(duration)}</td>
-        `;
-
-        body.appendChild(tr);
+        rooms[key].endpoints.push(endpoint);
     });
+
+    return Object.values(rooms).sort(
+        (a, b) => Number(a.room) - Number(b.room)
+    );
 }
 
-function combineDateTime(date, time) {
-    if (!date || !time) {
-        return "";
+
+function createRoomCard(room) {
+    const card = document.createElement("div");
+
+    const online = room.endpoints.every(endpoint =>
+        endpoint.state === 1 &&
+        endpoint.errorCode === 0
+    );
+
+    const hasOffline = room.endpoints.some(endpoint =>
+        endpoint.state !== 1 ||
+        endpoint.errorCode !== 0
+    );
+
+    if (hasOffline) {
+        card.className = "room-card offline";
+    }
+    else if (online) {
+        card.className = "room-card online";
+    }
+    else {
+        card.className = "room-card";
     }
 
-    return date + " " + time;
+    const beds = room.endpoints
+        .map(endpoint => {
+            const stateClass =
+                endpoint.state === 1 && endpoint.errorCode === 0
+                    ? "bed-online"
+                    : "bed-offline";
+
+            return `
+                <div class="bed-row">
+                    <span class="bed-status ${stateClass}"></span>
+                    <span>Giường ${escapeHtml(endpoint.bed)}</span>
+                    <span class="bed-device">
+                        ${escapeHtml(endpoint.typeName || "")}
+                    </span>
+                </div>
+            `;
+        })
+        .join("");
+
+    card.innerHTML = `
+        <div class="room-card-header">
+            <div class="room-number">
+                Phòng ${escapeHtml(room.room)}
+            </div>
+
+            <div class="room-status">
+                ${hasOffline ? "Lỗi" : "OK"}
+            </div>
+        </div>
+
+        <div class="bed-list">
+            ${beds}
+        </div>
+    `;
+
+    card.addEventListener("click", () => {
+        showRoomDetail(room);
+    });
+
+    return card;
 }
 
-function calculateDuration(start, stop) {
-    if (!start || !stop) {
-        return "";
+
+function showRoomDetail(room) {
+    const existing = document.querySelector(".room-modal");
+
+    if (existing) {
+        existing.remove();
     }
 
-    const startDate = new Date(start.replace(" ", "T"));
-    const stopDate = new Date(stop.replace(" ", "T"));
+    const modal = document.createElement("div");
+    modal.className = "room-modal";
 
-    if (
-        Number.isNaN(startDate.getTime()) ||
-        Number.isNaN(stopDate.getTime())
-    ) {
-        return "";
-    }
+    const endpointRows = room.endpoints
+        .map(endpoint => `
+            <tr>
+                <td>${escapeHtml(endpoint.bed)}</td>
+                <td>${escapeHtml(endpoint.typeName || "")}</td>
+                <td>${escapeHtml(endpoint.pbxId || "")}</td>
+                <td>${escapeHtml(endpoint.mac || "")}</td>
+                <td>${endpoint.state === 1 && endpoint.errorCode === 0
+                ? "Bình thường"
+                : "Lỗi"}</td>
+            </tr>
+        `)
+        .join("");
 
-    let seconds =
-        Math.floor(
-            (stopDate.getTime() - startDate.getTime()) / 1000
-        );
+    modal.innerHTML = `
+        <div class="room-modal-backdrop"></div>
 
-    if (seconds < 0) {
-        return "";
-    }
+        <div class="room-modal-content">
+            <div class="room-modal-header">
+                <h2>Phòng ${escapeHtml(room.room)}</h2>
+                <button class="room-modal-close">×</button>
+            </div>
 
-    const hours = Math.floor(seconds / 3600);
-    seconds %= 3600;
+            <table class="endpoint-detail-table">
+                <thead>
+                    <tr>
+                        <th>Giường</th>
+                        <th>Thiết bị</th>
+                        <th>PBX ID</th>
+                        <th>MAC</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
 
-    const minutes = Math.floor(seconds / 60);
-    seconds %= 60;
+                <tbody>
+                    ${endpointRows}
+                </tbody>
+            </table>
+        </div>
+    `;
 
-    if (hours > 0) {
-        return `${hours} giờ ${minutes} phút ${seconds} giây`;
-    }
+    document.body.appendChild(modal);
 
-    if (minutes > 0) {
-        return `${minutes} phút ${seconds} giây`;
-    }
+    modal.querySelector(".room-modal-close")
+        .addEventListener("click", () => modal.remove());
 
-    return `${seconds} giây`;
+    modal.querySelector(".room-modal-backdrop")
+        .addEventListener("click", () => modal.remove());
 }
+
 
 function escapeHtml(value) {
     return String(value)
@@ -258,13 +248,5 @@ function escapeHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
-async function loadAll() {
-    await Promise.all([
-        loadViewer(),
-        loadHistory()
-    ]);
-}
 
-loadAll();
-
-setInterval(loadAll, 5000);
+loadViewer();

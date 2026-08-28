@@ -2,31 +2,45 @@
     box-sizing: border-box;
 }
 
+html,
 body {
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: #f2f4f7;
-    color: #222;
+    min-height: 100%;
 }
 
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f3f5f7;
+    color: #1f2937;
+}
+
+/* =========================
+   TOP BAR
+   ========================= */
+
 .topbar {
-    height: 72px;
-    padding: 10px 24px;
+    min-height: 72px;
+    padding: 12px 24px;
     background: #1f2937;
     color: white;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-.topbar h1 {
-    margin: 0;
-    font-size: 24px;
-}
+    .topbar h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+    }
 
 .subtitle {
+    margin-top: 2px;
     font-size: 13px;
-    opacity: .7;
+    opacity: .65;
 }
 
 .system-status {
@@ -43,24 +57,46 @@ body {
     background: #22c55e;
 }
 
-#viewer {
-    padding: 20px;
+.offline-dot {
+    background: #ef4444;
 }
 
+/* =========================
+   MAIN VIEWER
+   ========================= */
+
+#viewer {
+    padding: 24px;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+/* =========================
+   DEPARTMENT
+   ========================= */
+
 .department {
-    margin-bottom: 24px;
+    margin-bottom: 32px;
 }
 
 .department-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d9dee5;
 }
 
 .department-name {
-    font-size: 20px;
-    font-weight: bold;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.department-short-name {
+    margin-top: 3px;
+    font-size: 13px;
+    color: #6b7280;
 }
 
 .endpoint-count {
@@ -68,42 +104,234 @@ body {
     color: #6b7280;
 }
 
-.endpoint-grid {
+/* =========================
+   ROOM GRID
+   ========================= */
+
+.room-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
 }
 
-.endpoint {
+/* =========================
+   ROOM CARD
+   ========================= */
+
+.room-card {
     background: white;
+    border: 1px solid #dfe3e8;
+    border-left: 5px solid #9ca3af;
     border-radius: 8px;
-    padding: 16px;
-    border-left: 5px solid #22c55e;
-    box-shadow: 0 1px 4px rgba(0,0,0,.12);
+    padding: 14px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+    transition: transform .12s ease, box-shadow .12s ease;
 }
 
-.endpoint.offline {
-    border-left-color: #ef4444;
+    .room-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+    }
+
+    .room-card.online {
+        border-left-color: #22c55e;
+    }
+
+    .room-card.offline {
+        border-left-color: #ef4444;
+    }
+
+/* =========================
+   ROOM HEADER
+   ========================= */
+
+.room-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
 }
 
-.room {
+.room-number {
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
-.bed {
-    margin-top: 4px;
-    color: #6b7280;
+.room-status {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
 }
 
-.device {
-    margin-top: 10px;
-    font-size: 12px;
-    color: #6b7280;
+/* =========================
+   BED
+   ========================= */
+
+.bed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
 }
+
+.bed-row {
+    display: grid;
+    grid-template-columns: 10px 1fr auto;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 8px;
+    background: #f7f8fa;
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+.bed-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.bed-online {
+    background: #22c55e;
+}
+
+.bed-offline {
+    background: #ef4444;
+}
+
+.bed-device {
+    color: #6b7280;
+    font-size: 11px;
+    text-align: right;
+}
+
+/* =========================
+   LOADING
+   ========================= */
 
 .loading {
-    padding: 40px;
+    padding: 50px 20px;
     text-align: center;
     color: #6b7280;
+}
+
+/* =========================
+   ROOM MODAL
+   ========================= */
+
+.room-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.room-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+}
+
+.room-modal-content {
+    position: relative;
+    z-index: 1;
+    width: min(900px, calc(100% - 32px));
+    max-height: calc(100vh - 48px);
+    overflow: auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, .25);
+}
+
+.room-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+    .room-modal-header h2 {
+        margin: 0;
+        font-size: 20px;
+    }
+
+.room-modal-close {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 6px;
+    background: #f3f4f6;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+    .room-modal-close:hover {
+        background: #e5e7eb;
+    }
+
+/* =========================
+   ENDPOINT DETAIL
+   ========================= */
+
+.endpoint-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+    .endpoint-detail-table th,
+    .endpoint-detail-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #e5e7eb;
+        text-align: left;
+    }
+
+    .endpoint-detail-table th {
+        background: #f8fafc;
+        font-weight: 600;
+    }
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 700px) {
+
+    .topbar {
+        padding: 12px 16px;
+    }
+
+        .topbar h1 {
+            font-size: 20px;
+        }
+
+    #viewer {
+        padding: 16px;
+    }
+
+    .department-header {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .room-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bed-device {
+        display: none;
+    }
+
+    .endpoint-detail-table {
+        font-size: 12px;
+    }
+
+        .endpoint-detail-table th,
+        .endpoint-detail-table td {
+            padding: 8px;
+        }
 }
