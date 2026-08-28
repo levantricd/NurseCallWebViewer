@@ -1,4 +1,5 @@
 ﻿using NurseCall.Web.Data;
+using NurseCall.Web.Models;
 
 namespace NurseCall.Web.Services;
 
@@ -11,7 +12,7 @@ public class HistoryService
         _db = db;
     }
 
-    public async Task<List<Dictionary<string, string?>>> GetRecentAsync(int limit = 50)
+    public async Task<List<History>> GetRecentAsync(int limit = 50)
     {
         limit = Math.Clamp(limit, 1, 200);
 
@@ -38,7 +39,7 @@ public class HistoryService
 
         var output = await _db.QueryAsync(sql);
 
-        var result = new List<Dictionary<string, string?>>();
+        var result = new List<History>();
 
         var lines = output
             .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -51,19 +52,45 @@ public class HistoryService
         foreach (var line in lines.Skip(1))
         {
             var columns = line.Split('\t');
-            var row = new Dictionary<string, string?>();
 
-            for (var i = 0; i < headers.Length; i++)
+            string Get(string name)
             {
-                row[headers[i]] =
-                    i < columns.Length && columns[i] != "\\N"
-                        ? columns[i]
-                        : null;
+                var index = Array.IndexOf(headers, name);
+
+                if (index < 0 || index >= columns.Length)
+                    return "";
+
+                return columns[index] == "\\N"
+                    ? ""
+                    : columns[index];
             }
 
-            result.Add(row);
+            result.Add(new History
+            {
+                IdRecord = GetInt(Get("idRecord")),
+                IdSegment = GetInt(Get("idSegment")),
+                IdDepartment = GetInt(Get("idDepartment")),
+                Room = GetInt(Get("Room")),
+                Bed = GetInt(Get("Bed")),
+                TypeOfCall = GetInt(Get("TypeOfCall")),
+                TypeOfPresence = GetInt(Get("TypeOfPresence")),
+                IdPatient = GetInt(Get("idPatient")),
+                TextA = Get("TextA"),
+                TextB = Get("TextB"),
+                StartDate = Get("StartDate"),
+                StartTime = Get("StartTime"),
+                StopDate = Get("StopDate"),
+                StopTime = Get("StopTime")
+            });
         }
 
         return result;
+    }
+
+    private static int? GetInt(string value)
+    {
+        return int.TryParse(value, out var result)
+            ? result
+            : null;
     }
 }

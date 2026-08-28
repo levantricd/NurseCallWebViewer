@@ -1,0 +1,218 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Nurse Call - Lịch sử</title>
+
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div>
+            <h1>Nurse Call</h1>
+            <div class="subtitle">Lịch sử cuộc gọi</div>
+        </div>
+
+        <div class="system-status">
+            <span class="status-dot"></span>
+            <span>Đang kết nối</span>
+        </div>
+    </header>
+
+    <main class="history-page">
+
+        <div class="history-toolbar">
+
+            <div>
+                <h2>Lịch sử cuộc gọi</h2>
+
+                <div class="history-description">
+                    Các sự kiện được ghi nhận trong hệ thống Nurse Call
+                </div>
+            </div>
+
+            <a class="back-button" href="/">
+                ← Dashboard
+            </a>
+
+        </div>
+
+        <section class="history-card">
+
+            <!-- =========================
+                 FILTERS
+                 ========================= -->
+
+            <div class="history-filters">
+
+                <div class="filter-group">
+
+                    <label for="history-department">
+                        Khoa
+                    </label>
+
+                    <select id="history-department">
+
+                        <option value="">
+                            Tất cả khoa
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="filter-group">
+
+                    <label for="history-room">
+                        Phòng
+                    </label>
+
+                    <input id="history-room"
+                           type="text"
+                           placeholder="Ví dụ: 306">
+
+                </div>
+
+
+                <div class="filter-group">
+
+                    <label for="history-from">
+                        Từ ngày
+                    </label>
+
+                    <input id="history-from"
+                           type="date">
+
+                </div>
+
+
+                <div class="filter-group">
+
+                    <label for="history-to">
+                        Đến ngày
+                    </label>
+
+                    <input id="history-to"
+                           type="date">
+
+                </div>
+
+
+                <div class="filter-actions">
+
+                    <button id="history-search"
+                            type="button">
+
+                        Tìm kiếm
+
+                    </button>
+
+
+                    <button id="history-clear"
+                            type="button">
+
+                        Xóa lọc
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 SUMMARY
+                 ========================= -->
+
+            <div class="history-summary">
+
+                <span id="history-count">
+                    0 bản ghi
+                </span>
+
+            </div>
+
+
+            <!-- =========================
+                 LOADING
+                 ========================= -->
+
+            <div id="history-loading"
+                 class="loading">
+
+                Đang tải lịch sử...
+
+            </div>
+
+
+            <!-- =========================
+                 ERROR
+                 ========================= -->
+
+            <div id="history-error"
+                 class="history-error"
+                 hidden>
+
+                Không thể tải dữ liệu lịch sử.
+
+            </div>
+
+
+            <!-- =========================
+                 HISTORY TABLE
+                 ========================= -->
+
+            <div class="history-table-wrapper">
+
+                <table class="history-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+
+                            <th>Ngày</th>
+
+                            <th>Bắt đầu</th>
+
+                            <th>Khoa</th>
+
+                            <th>Phòng</th>
+
+                            <th>Giường</th>
+
+                            <th>Loại gọi</th>
+
+                            <th>Hiện diện</th>
+
+                            <th>Kết thúc</th>
+
+                            <th>Thời gian</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="history-body">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="/js/history.js"></script>
+
+</body>
+</html>
