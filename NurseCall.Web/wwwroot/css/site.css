@@ -604,3 +604,253 @@ body {
             padding: 8px;
         }
 }
+/* Active calls */
+
+.active-calls-section {
+    margin-bottom: 24px;
+}
+
+.active-calls-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.active-calls-header h2 {
+    margin: 0;
+}
+
+#active-calls-summary {
+    margin-top: 4px;
+    opacity: 0.7;
+}
+
+.calls-status {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+}
+
+.calls-status.online {
+    background: #e8f7ee;
+    color: #18794e;
+}
+
+.calls-status.offline {
+    background: #fdecec;
+    color: #b42318;
+}
+
+.calls-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calls-empty {
+    padding: 18px;
+    text-align: center;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    opacity: 0.75;
+}
+
+.calls-empty-icon {
+    margin-right: 8px;
+}
+
+.calls-error {
+    color: #b42318;
+}
+
+.call-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 5px solid;
+    background: #fff;
+}
+
+.call-icon {
+    font-size: 24px;
+    min-width: 32px;
+    text-align: center;
+}
+
+.call-main {
+    flex: 1;
+}
+
+.call-type {
+    font-weight: 700;
+}
+
+.call-location {
+    margin-top: 3px;
+}
+
+.call-text {
+    margin-top: 3px;
+    opacity: 0.7;
+}
+
+.call-meta {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.call-room {
+    border-left-color: #f59e0b;
+}
+
+.call-emergency {
+    border-left-color: #dc2626;
+}
+
+.call-blue-code {
+    border-left-color: #2563eb;
+}
+
+.call-default {
+    border-left-color: #6b7280;
+}
+
+/* Active calls */
+
+.active-calls-section {
+    margin-bottom: 24px;
+}
+
+.active-calls-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+    .active-calls-header h2 {
+        margin: 0;
+    }
+
+#active-calls-summary {
+    margin-top: 4px;
+    opacity: 0.7;
+}
+
+.calls-status {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+}
+
+    .calls-status.online {
+        background: #e8f7ee;
+        color: #18794e;
+    }
+
+    .calls-status.offline {
+        background: #fdecec;
+        color: #b42318;
+    }
+
+.calls-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calls-empty {
+    padding: 18px;
+    text-align: center;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    opacity: 0.75;
+}
+
+.calls-empty-icon {
+    margin-right: 8px;
+}
+
+.calls-error {
+    color: #b42318;
+}
+
+.call-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 5px solid;
+    background: #fff;
+}
+
+.call-icon {
+    font-size: 24px;
+    min-width: 32px;
+    text-align: center;
+}
+
+.call-main {
+    flex: 1;
+}
+
+.call-type {
+    font-weight: 700;
+}
+
+.call-location {
+    margin-top: 3px;
+}
+
+.call-text {
+    margin-top: 3px;
+    opacity: 0.7;
+}
+
+.call-meta {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.call-room {
+    border-left-color: #f59e0b;
+}
+
+.call-emergency {
+    border-left-color: #dc2626;
+}
+
+.call-blue-code {
+    border-left-color: #2563eb;
+}
+
+.call-default {
+    border-left-color: #6b7280;
+}
+
+/* =========================
+   PRESENCE
+   ========================= */
+
+.presence-indicator {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+    background: transparent;
+}
+
+.presence-1 {
+    background: #22c55e;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, .15);
+}
+
+.bed-row {
+    grid-template-columns: 10px 1fr auto 10px;
+}

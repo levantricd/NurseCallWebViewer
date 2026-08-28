@@ -9,6 +9,7 @@ builder.Services.AddScoped<EndpointService>();
 builder.Services.AddScoped<ViewerService>();
 builder.Services.AddScoped<HistoryService>();
 builder.Services.AddScoped<CallService>();
+builder.Services.AddScoped<PresenceService>();
 
 var app = builder.Build();
 
@@ -43,6 +44,12 @@ app.MapGet("/api/calls", async (CallService service) =>
 {
     var calls = await service.GetActiveAsync();
     return Results.Ok(calls);
+});
+
+app.MapGet("/api/presence", async (PresenceService service) =>
+{
+    var presence = await service.GetActiveAsync();
+    return Results.Ok(presence);
 });
 
 app.Run();

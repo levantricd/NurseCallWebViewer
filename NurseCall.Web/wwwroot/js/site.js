@@ -1,4 +1,13 @@
-﻿async function loadViewer() {
+﻿let departmentsCache = [];
+let callsCache = [];
+let presenceCache = [];
+
+const CALL_POLL_INTERVAL = 2000;
+const PRESENCE_POLL_INTERVAL = 2000;
+const VIEWER_POLL_INTERVAL = 10000;
+
+
+async function loadViewer() {
     const viewer = document.getElementById("viewer");
     const status = document.querySelector(".system-status");
 
@@ -11,9 +20,9 @@
             throw new Error("HTTP " + response.status);
         }
 
-        const departments = await response.json();
+        departmentsCache = await response.json();
 
-        renderViewer(departments);
+        renderViewer(departmentsCache);
 
         status.innerHTML =
             '<span class="status-dot"></span>' +
@@ -34,6 +43,196 @@
 }
 
 
+async function loadCalls() {
+    const callsList = document.getElementById("calls-list");
+    const summary = document.getElementById("active-calls-summary");
+    const callsStatus = document.getElementById("calls-status");
+
+    try {
+        const response = await fetch("/api/calls", {
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
+
+        callsCache = await response.json();
+
+        renderCalls(callsCache);
+
+        callsStatus.textContent = "Đang hoạt động";
+        callsStatus.className = "calls-status online";
+    }
+    catch (error) {
+        console.error(error);
+
+        callsList.innerHTML =
+            '<div class="calls-empty calls-error">' +
+            'Không thể tải trạng thái cuộc gọi.' +
+            '</div>';
+
+        summary.textContent = "Không thể kết nối";
+
+        callsStatus.textContent = "Mất kết nối";
+        callsStatus.className = "calls-status offline";
+    }
+}
+
+
+async function loadPresence() {
+    try {
+        const response = await fetch("/api/presence", {
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
+
+        presenceCache = await response.json();
+
+        updatePresenceIndicators();
+    }
+    catch (error) {
+        console.error("Presence:", error);
+    }
+}
+
+
+function renderCalls(calls) {
+    const callsList = document.getElementById("calls-list");
+    const summary = document.getElementById("active-calls-summary");
+
+    if (!calls || calls.length === 0) {
+        callsList.innerHTML =
+            '<div class="calls-empty">' +
+            '<span class="calls-empty-icon">✓</span>' +
+            '<span>Không có cuộc gọi đang hoạt động</span>' +
+            '</div>';
+
+        summary.textContent = "Không có cuộc gọi";
+        return;
+    }
+
+    summary.textContent =
+        `${calls.length} cuộc gọi đang hoạt động`;
+
+    callsList.innerHTML = "";
+
+    calls.forEach(call => {
+        callsList.appendChild(createCallCard(call));
+    });
+}
+
+
+function createCallCard(call) {
+    const card = document.createElement("div");
+
+    const type = getCallType(call.typeOfCall);
+
+    card.className = `call-card ${type.cssClass}`;
+
+    const location = formatCallLocation(call);
+
+    const priorityText =
+        call.priority !== null && call.priority !== undefined
+            ? `Ưu tiên ${call.priority}`
+            : "";
+
+    const callerText = [
+        call.callerTextA,
+        call.callerTextB
+    ]
+        .filter(value => value)
+        .join(" ");
+
+    card.innerHTML = `
+        <div class="call-icon">
+            ${type.icon}
+        </div>
+
+        <div class="call-main">
+            <div class="call-type">
+                ${escapeHtml(type.name)}
+            </div>
+
+            <div class="call-location">
+                ${escapeHtml(location)}
+            </div>
+
+            ${callerText
+            ? `<div class="call-text">${escapeHtml(callerText)}</div>`
+            : ""}
+        </div>
+
+        <div class="call-meta">
+            ${priorityText
+            ? `<span>${escapeHtml(priorityText)}</span>`
+            : ""}
+        </div>
+    `;
+
+    return card;
+}
+
+
+function getCallType(typeOfCall) {
+    switch (Number(typeOfCall)) {
+
+        case 3:
+            return {
+                name: "Room call",
+                icon: "🔔",
+                cssClass: "call-room"
+            };
+
+        case 5:
+            return {
+                name: "Emergency call",
+                icon: "🚨",
+                cssClass: "call-emergency"
+            };
+
+        case 10:
+            return {
+                name: "Blue code",
+                icon: "🔵",
+                cssClass: "call-blue-code"
+            };
+
+        default:
+            return {
+                name: `Call (${typeOfCall ?? "-"})`,
+                icon: "🔔",
+                cssClass: "call-default"
+            };
+    }
+}
+
+
+function formatCallLocation(call) {
+    let location = "";
+
+    if (call.room !== null && call.room !== undefined) {
+        location += `Phòng ${call.room}`;
+    }
+
+    if (call.bed !== null && call.bed !== undefined) {
+        location += ` · Giường ${call.bed}`;
+    }
+
+    if (call.callerExtBed !== null &&
+        call.callerExtBed !== undefined &&
+        call.callerExtBed > 0) {
+
+        location += ` · Giường phụ ${call.callerExtBed}`;
+    }
+
+    return location || "Không xác định vị trí";
+}
+
+
 function renderViewer(departments) {
     const viewer = document.getElementById("viewer");
 
@@ -50,7 +249,6 @@ function renderViewer(departments) {
         section.className = "department";
 
         const endpoints = department.endpoints || [];
-
         const rooms = groupRooms(endpoints);
 
         const header = document.createElement("div");
@@ -87,6 +285,8 @@ function renderViewer(departments) {
 
         viewer.appendChild(section);
     });
+
+    updatePresenceIndicators();
 }
 
 
@@ -143,12 +343,21 @@ function createRoomCard(room) {
                     : "bed-offline";
 
             return `
-                <div class="bed-row">
+                <div class="bed-row"
+                     data-room="${escapeHtml(endpoint.room)}"
+                     data-bed="${escapeHtml(endpoint.bed)}">
+
                     <span class="bed-status ${stateClass}"></span>
-                    <span>Giường ${escapeHtml(endpoint.bed)}</span>
+
+                    <span>
+                        Giường ${escapeHtml(endpoint.bed)}
+                    </span>
+
                     <span class="bed-device">
                         ${escapeHtml(endpoint.typeName || "")}
                     </span>
+
+                    <span class="presence-indicator"></span>
                 </div>
             `;
         })
@@ -175,6 +384,51 @@ function createRoomCard(room) {
     });
 
     return card;
+}
+
+
+function updatePresenceIndicators() {
+    document.querySelectorAll(".bed-row").forEach(row => {
+
+        const room = Number(row.dataset.room);
+        const bed = Number(row.dataset.bed);
+
+        const presence = presenceCache.find(item =>
+            Number(item.room) === room &&
+            Number(item.bed) === bed
+        );
+
+        const indicator =
+            row.querySelector(".presence-indicator");
+
+        if (!indicator)
+            return;
+
+        if (!presence) {
+            indicator.className =
+                "presence-indicator";
+            indicator.title = "";
+            return;
+        }
+
+        const type = Number(presence.typeOfPresence);
+
+        indicator.className =
+            `presence-indicator presence-${type}`;
+
+        indicator.title =
+            getPresenceName(type);
+    });
+}
+
+
+function getPresenceName(type) {
+    switch (type) {
+        case 1:
+            return "Presence";
+        default:
+            return `Presence (${type})`;
+    }
 }
 
 
@@ -249,4 +503,15 @@ function escapeHtml(value) {
 }
 
 
-loadViewer();
+async function startPolling() {
+    await loadViewer();
+    await loadCalls();
+    await loadPresence();
+
+    setInterval(loadCalls, CALL_POLL_INTERVAL);
+    setInterval(loadPresence, PRESENCE_POLL_INTERVAL);
+    setInterval(loadViewer, VIEWER_POLL_INTERVAL);
+}
+
+
+startPolling();

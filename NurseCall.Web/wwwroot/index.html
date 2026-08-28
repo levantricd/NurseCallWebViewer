@@ -21,8 +21,35 @@
         </div>
     </header>
 
-    <main id="viewer">
-        <div class="loading">Đang tải dữ liệu...</div>
+    <main>
+
+        <section id="active-calls" class="active-calls-section">
+            <div class="active-calls-header">
+                <div>
+                    <h2>Cuộc gọi đang hoạt động</h2>
+                    <div id="active-calls-summary">
+                        Đang kiểm tra...
+                    </div>
+                </div>
+
+                <div id="calls-status" class="calls-status">
+                    Đang tải
+                </div>
+            </div>
+
+            <div id="calls-list" class="calls-list">
+                <div class="loading">
+                    Đang tải cuộc gọi...
+                </div>
+            </div>
+        </section>
+
+        <section id="viewer">
+            <div class="loading">
+                Đang tải dữ liệu...
+            </div>
+        </section>
+
     </main>
 
     <script src="/js/site.js"></script>
