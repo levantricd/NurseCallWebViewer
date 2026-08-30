@@ -1,6 +1,7 @@
 ﻿let departmentsCache = [];
 let callsCache = [];
 let presenceCache = [];
+let hardwareCache = [];
 
 const CALL_POLL_INTERVAL = 2000;
 const PRESENCE_POLL_INTERVAL = 2000;
@@ -431,6 +432,24 @@ function getPresenceName(type) {
     }
 }
 
+async function loadHardware() {
+    try {
+        const response = await fetch("/api/hardware", {
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
+
+        hardwareCache = await response.json();
+    }
+    catch (error) {
+        console.error("Hardware:", error);
+        hardwareCache = [];
+    }
+}
+
 
 function showRoomDetail(room) {
     const existing = document.querySelector(".room-modal");
@@ -439,57 +458,217 @@ function showRoomDetail(room) {
         existing.remove();
     }
 
-    const modal = document.createElement("div");
-    modal.className = "room-modal";
+    const hardware = hardwareCache.filter(item =>
+        Number(item.idDepartment) === Number(
+            departmentsCache.find(d =>
+                (d.endpoints || []).some(e =>
+                    Number(e.room) === Number(room.room)
+                )
+            )?.idDepartment
+        ) &&
+        Number(item.room) === Number(room.room)
+    );
 
     const endpointRows = room.endpoints
-        .map(endpoint => `
-            <tr>
-                <td>${escapeHtml(endpoint.bed)}</td>
-                <td>${escapeHtml(endpoint.typeName || "")}</td>
-                <td>${escapeHtml(endpoint.pbxId || "")}</td>
-                <td>${escapeHtml(endpoint.mac || "")}</td>
-                <td>${endpoint.state === 1 && endpoint.errorCode === 0
-                ? "Bình thường"
-                : "Lỗi"}</td>
-            </tr>
-        `)
+        .map(endpoint => {
+
+            const patientText = [
+                endpoint.patientTextA,
+                endpoint.patientTextB
+            ]
+                .filter(value => value)
+                .join(" ");
+
+            const endpointOk =
+                endpoint.state === 1 &&
+                endpoint.errorCode === 0;
+
+            let status = endpointOk
+                ? `<span class="detail-status ok">Bình thường</span>`
+                : `<span class="detail-status error">Lỗi</span>`;
+
+            if (endpoint.priorityCare) {
+                status +=
+                    `<span class="priority-badge">Ưu tiên</span>`;
+            }
+
+            return `
+                <tr>
+                    <td>
+                        <strong>Giường ${escapeHtml(endpoint.bed)}</strong>
+                    </td>
+
+                    <td>
+                        ${escapeHtml(endpoint.typeName || "")}
+                    </td>
+
+                    <td>
+                        ${patientText
+                    ? escapeHtml(patientText)
+                    : '<span class="muted">Trống</span>'}
+                    </td>
+
+                    <td>
+                        ${endpoint.terminalConnected === 1
+                    ? '<span class="detail-status ok">Connected</span>'
+                    : endpoint.terminal
+                        ? '<span class="detail-status error">Disconnected</span>'
+                        : '<span class="muted">-</span>'}
+                    </td>
+
+                    <td>
+                        ${status}
+                    </td>
+                </tr>
+            `;
+        })
         .join("");
+
+    const hardwareRows = hardware.length > 0
+        ? hardware.map(item => {
+
+            const hardwareOk =
+                Number(item.errorState) === 0;
+
+            return `
+                <tr>
+                    <td>
+                        ${escapeHtml(item.position)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.elementName || "")}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.ipAddr || "")}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.macAddr || "")}
+                    </td>
+
+                    <td>
+                        ${hardwareOk
+                    ? '<span class="detail-status ok">OK</span>'
+                    : `<span class="detail-status error">
+                                Error ${escapeHtml(item.errorState)}
+                               </span>`}
+                    </td>
+                </tr>
+            `;
+        }).join("")
+        : `
+            <tr>
+                <td colspan="5" class="muted">
+                    Không có thông tin phần cứng.
+                </td>
+            </tr>
+        `;
+
+    const modal = document.createElement("div");
+
+    modal.className = "room-modal";
 
     modal.innerHTML = `
         <div class="room-modal-backdrop"></div>
 
         <div class="room-modal-content">
+
             <div class="room-modal-header">
-                <h2>Phòng ${escapeHtml(room.room)}</h2>
-                <button class="room-modal-close">×</button>
+
+                <div>
+                    <h2>Phòng ${escapeHtml(room.room)}</h2>
+
+                    <div class="room-modal-subtitle">
+                        Thông tin phòng và thiết bị
+                    </div>
+                </div>
+
+                <button
+                    class="room-modal-close"
+                    type="button">
+                    ×
+                </button>
+
             </div>
 
-            <table class="endpoint-detail-table">
-                <thead>
-                    <tr>
-                        <th>Giường</th>
-                        <th>Thiết bị</th>
-                        <th>PBX ID</th>
-                        <th>MAC</th>
-                        <th>Trạng thái</th>
-                    </tr>
-                </thead>
 
-                <tbody>
-                    ${endpointRows}
-                </tbody>
-            </table>
+            <section class="room-detail-section">
+
+                <div class="room-detail-section-title">
+                    Giường / Bệnh nhân
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table class="endpoint-detail-table">
+
+                        <thead>
+                            <tr>
+                                <th>Giường</th>
+                                <th>Thiết bị</th>
+                                <th>Bệnh nhân</th>
+                                <th>Terminal</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            ${endpointRows}
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <section class="room-detail-section">
+
+                <div class="room-detail-section-title">
+                    Hardware
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table class="endpoint-detail-table">
+
+                        <thead>
+                            <tr>
+                                <th>Position</th>
+                                <th>Thiết bị</th>
+                                <th>IP</th>
+                                <th>MAC</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            ${hardwareRows}
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
         </div>
     `;
 
     document.body.appendChild(modal);
 
     modal.querySelector(".room-modal-close")
-        .addEventListener("click", () => modal.remove());
+        .addEventListener("click", () => {
+            modal.remove();
+        });
 
     modal.querySelector(".room-modal-backdrop")
-        .addEventListener("click", () => modal.remove());
+        .addEventListener("click", () => {
+            modal.remove();
+        });
 }
 
 
@@ -507,6 +686,7 @@ async function startPolling() {
     await loadViewer();
     await loadCalls();
     await loadPresence();
+    await loadHardware();
 
     setInterval(loadCalls, CALL_POLL_INTERVAL);
     setInterval(loadPresence, PRESENCE_POLL_INTERVAL);

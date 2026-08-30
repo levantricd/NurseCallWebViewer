@@ -10,6 +10,7 @@ builder.Services.AddScoped<ViewerService>();
 builder.Services.AddScoped<HistoryService>();
 builder.Services.AddScoped<CallService>();
 builder.Services.AddScoped<PresenceService>();
+builder.Services.AddScoped<HardwareService>();
 
 var app = builder.Build();
 
@@ -50,6 +51,12 @@ app.MapGet("/api/presence", async (PresenceService service) =>
 {
     var presence = await service.GetActiveAsync();
     return Results.Ok(presence);
+});
+
+app.MapGet("/api/hardware", async (HardwareService service) =>
+{
+    var hardware = await service.GetAllAsync();
+    return Results.Ok(hardware);
 });
 
 app.Run();
