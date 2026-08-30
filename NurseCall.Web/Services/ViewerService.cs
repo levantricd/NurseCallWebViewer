@@ -1,4 +1,4 @@
-using NurseCall.Web.Data;
+﻿using NurseCall.Web.Data;
 
 namespace NurseCall.Web.Services;
 
@@ -13,7 +13,7 @@ public class ViewerService
 
     public async Task<List<ViewerDepartment>> GetAsync()
     {
-        const string sql = """
+        const string endpointSql = """
             SELECT
                 d.idSegment,
                 d.idDepartment,
@@ -31,28 +31,13 @@ public class ViewerService
                 e.ModuleName,
                 e.PbxId,
                 e.State,
-                e.ErrorCode,
-
-                p.TextA AS PatientTextA,
-                p.TextB AS PatientTextB,
-                p.BedFree,
-                p.PriorityCare,
-                p.Terminal,
-                p.TerminalName,
-                p.TerminalConnected,
-                p.WirelessButtonLowBat,
-                p.WirelessButtonType,
-                p.IdNeat,
-                p.IdAccesor
+                e.ErrorCode
 
             FROM Departments d
 
             LEFT JOIN EndPoints e
                 ON e.idSegment = d.idSegment
                 AND e.idDepartment = d.idDepartment
-
-            LEFT JOIN Patients p
-                ON p.MAC = e.MAC
 
             ORDER BY
                 d.idSegment,
@@ -61,27 +46,27 @@ public class ViewerService
                 e.Bed;
             """;
 
-        var output = await _db.QueryAsync(sql);
+        var endpointOutput = await _db.QueryAsync(endpointSql);
 
-        var lines = output
+        var endpointLines = endpointOutput
             .Split(
                 new[] { '\r', '\n' },
                 StringSplitOptions.RemoveEmptyEntries);
 
         var result = new List<ViewerDepartment>();
 
-        if (lines.Length <= 1)
+        if (endpointLines.Length <= 1)
             return result;
 
-        var headers = lines[0].Split('\t');
+        var endpointHeaders = endpointLines[0].Split('\t');
 
-        foreach (var line in lines.Skip(1))
+        foreach (var line in endpointLines.Skip(1))
         {
             var columns = line.Split('\t');
 
             string Get(string name)
             {
-                var index = Array.IndexOf(headers, name);
+                var index = Array.IndexOf(endpointHeaders, name);
 
                 if (index < 0 || index >= columns.Length)
                     return "";
@@ -117,8 +102,18 @@ public class ViewerService
             if (!int.TryParse(Get("Room"), out var room))
                 continue;
 
+            /*
+             * QUAN TRỌNG:
+             *
+             * EndPoints là nguồn xác định số lượng thiết bị.
+             * Không được JOIN Patients ở đây vì Patients có thể
+             * chứa nhiều record cho cùng một MAC.
+             */
             department.Endpoints.Add(new ViewerEndpoint
             {
+                IdSegment = idSegment,
+                IdDepartment = idDepartment,
+
                 Room = room,
                 Bed = GetInt(Get("Bed")),
 
@@ -136,28 +131,7 @@ public class ViewerService
                 PbxId = Get("PbxId"),
 
                 State = GetNullableInt(Get("State")),
-                ErrorCode = GetNullableInt(Get("ErrorCode")),
-
-                // Patient
-                PatientTextA = Get("PatientTextA"),
-                PatientTextB = Get("PatientTextB"),
-
-                BedFree = GetNullableInt(Get("BedFree")),
-                PriorityCare = GetNullableInt(Get("PriorityCare")),
-
-                Terminal = GetNullableInt(Get("Terminal")),
-                TerminalName = Get("TerminalName"),
-                TerminalConnected =
-                    GetNullableInt(Get("TerminalConnected")),
-
-                WirelessButtonLowBat =
-                    GetNullableInt(Get("WirelessButtonLowBat")),
-
-                WirelessButtonType =
-                    GetNullableInt(Get("WirelessButtonType")),
-
-                IdNeat = GetNullableInt(Get("IdNeat")),
-                IdAccesor = GetNullableInt(Get("IdAccesor"))
+                ErrorCode = GetNullableInt(Get("ErrorCode"))
             });
         }
 
@@ -180,6 +154,10 @@ public class ViewerService
 }
 
 
+// ================================================================
+// DEPARTMENT
+// ================================================================
+
 public class ViewerDepartment
 {
     public int IdSegment { get; set; }
@@ -194,8 +172,16 @@ public class ViewerDepartment
 }
 
 
+// ================================================================
+// ENDPOINT
+// ================================================================
+
 public class ViewerEndpoint
 {
+    public int IdSegment { get; set; }
+
+    public int IdDepartment { get; set; }
+
     public int Room { get; set; }
 
     public int Bed { get; set; }
@@ -219,46 +205,4 @@ public class ViewerEndpoint
     public int? State { get; set; }
 
     public int? ErrorCode { get; set; }
-
-
-    // =========================
-    // PATIENT
-    // =========================
-
-    public string? PatientTextA { get; set; }
-
-    public string? PatientTextB { get; set; }
-
-    public int? BedFree { get; set; }
-
-    public int? PriorityCare { get; set; }
-
-
-    // =========================
-    // TERMINAL
-    // =========================
-
-    public int? Terminal { get; set; }
-
-    public string? TerminalName { get; set; }
-
-    public int? TerminalConnected { get; set; }
-
-
-    // =========================
-    // WIRELESS BUTTON
-    // =========================
-
-    public int? WirelessButtonLowBat { get; set; }
-
-    public int? WirelessButtonType { get; set; }
-
-
-    // =========================
-    // HARDWARE IDENTIFIERS
-    // =========================
-
-    public int? IdNeat { get; set; }
-
-    public int? IdAccesor { get; set; }
 }
