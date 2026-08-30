@@ -474,13 +474,8 @@ function showRoomDetail(room) {
     }
 
     const hardware = hardwareCache.filter(item =>
-        Number(item.idDepartment) === Number(
-            departmentsCache.find(d =>
-                (d.endpoints || []).some(e =>
-                    Number(e.room) === Number(room.room)
-                )
-            )?.idDepartment
-        ) &&
+        Number(item.idSegment) === Number(room.idSegment) &&
+        Number(item.idDepartment) === Number(room.idDepartment) &&
         Number(item.room) === Number(room.room)
     );
 
