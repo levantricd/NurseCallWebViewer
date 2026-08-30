@@ -61,6 +61,7 @@ async function loadCalls() {
         callsCache = await response.json();
 
         renderCalls(callsCache);
+        updatePresenceIndicators();
 
         callsStatus.textContent = "Đang hoạt động";
         callsStatus.className = "calls-status online";
@@ -295,10 +296,13 @@ function groupRooms(endpoints) {
     const rooms = {};
 
     endpoints.forEach(endpoint => {
-        const key = endpoint.room;
+        const key =
+            `${endpoint.idSegment}|${endpoint.idDepartment}|${endpoint.room}`;
 
         if (!rooms[key]) {
             rooms[key] = {
+                idSegment: endpoint.idSegment,
+                idDepartment: endpoint.idDepartment,
                 room: endpoint.room,
                 endpoints: []
             };
@@ -345,8 +349,10 @@ function createRoomCard(room) {
 
             return `
                 <div class="bed-row"
-                     data-room="${escapeHtml(endpoint.room)}"
-                     data-bed="${escapeHtml(endpoint.bed)}">
+                    data-segment="${escapeHtml(endpoint.idSegment)}"
+                    data-department="${escapeHtml(endpoint.idDepartment)}"
+                    data-room="${escapeHtml(endpoint.room)}"
+                    data-bed="${escapeHtml(endpoint.bed)}">
 
                     <span class="bed-status ${stateClass}"></span>
 
@@ -395,6 +401,15 @@ function updatePresenceIndicators() {
         const bed = Number(row.dataset.bed);
 
         const presence = presenceCache.find(item =>
+            Number(item.idSegment) === Number(row.dataset.segment) &&
+            Number(item.idDepartment) === Number(row.dataset.department) &&
+            Number(item.room) === room &&
+            Number(item.bed) === bed
+        );
+
+        const call = callsCache.find(item =>
+            Number(item.idSegment) === Number(row.dataset.segment) &&
+            Number(item.idDepartment) === Number(row.dataset.department) &&
             Number(item.room) === room &&
             Number(item.bed) === bed
         );
@@ -405,20 +420,20 @@ function updatePresenceIndicators() {
         if (!indicator)
             return;
 
-        if (!presence) {
-            indicator.className =
-                "presence-indicator";
-            indicator.title = "";
-            return;
+        indicator.className = "presence-indicator";
+
+        if (presence) {
+            const type = Number(presence.typeOfPresence);
+
+            indicator.classList.add(`presence-${type}`);
+            indicator.title = getPresenceName(type);
         }
 
-        const type = Number(presence.typeOfPresence);
-
-        indicator.className =
-            `presence-indicator presence-${type}`;
-
-        indicator.title =
-            getPresenceName(type);
+        if (call) {
+            indicator.classList.add("has-call");
+            indicator.title =
+                `${getCallType(call.typeOfCall).name}`;
+        }
     });
 }
 
