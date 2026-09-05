@@ -7,6 +7,101 @@ const CALL_POLL_INTERVAL = 2000;
 const PRESENCE_POLL_INTERVAL = 2000;
 const VIEWER_POLL_INTERVAL = 10000;
 
+// ============================================================
+// SUMMARY CARDS
+// ============================================================
+
+function updateSummaryCards() {
+
+    // ----------------------------
+    // Cuộc gọi
+    // ----------------------------
+
+    const callsElement =
+        document.getElementById("summary-calls");
+
+    const menuCallElement =
+        document.getElementById("menu-call-count");
+
+    if (callsElement) {
+        callsElement.textContent =
+            callsCache.length;
+    }
+
+    if (menuCallElement) {
+        menuCallElement.textContent =
+            callsCache.length;
+    }
+
+
+    // ----------------------------
+    // Hiện diện
+    // ----------------------------
+
+    const presenceElement =
+        document.getElementById("summary-presence");
+
+    if (presenceElement) {
+        presenceElement.textContent =
+            presenceCache.length;
+    }
+
+
+    // ----------------------------
+    // Phòng
+    // ----------------------------
+
+    const roomsElement =
+        document.getElementById("summary-rooms");
+
+    let roomCount = 0;
+
+    departmentsCache.forEach(department => {
+
+        const endpoints =
+            department.endpoints || [];
+
+        const rooms = new Set();
+
+        endpoints.forEach(endpoint => {
+
+            const key =
+                `${endpoint.idSegment}|` +
+                `${endpoint.idDepartment}|` +
+                `${endpoint.room}`;
+
+            rooms.add(key);
+        });
+
+        roomCount += rooms.size;
+    });
+
+    if (roomsElement) {
+        roomsElement.textContent =
+            roomCount;
+    }
+
+
+    // ----------------------------
+    // Thiết bị
+    // ----------------------------
+
+    const devicesElement =
+        document.getElementById("summary-devices");
+
+    let deviceCount = 0;
+
+    departmentsCache.forEach(department => {
+
+        deviceCount +=
+            (department.endpoints || []).length;
+    });
+
+    if (devicesElement) {
+        devicesElement.textContent =
+            deviceCount;
+    }
+}
 
 async function loadViewer() {
     const viewer = document.getElementById("viewer");
@@ -23,6 +118,7 @@ async function loadViewer() {
 
         departmentsCache = await response.json();
 
+        updateSummaryCards();
         renderViewer(departmentsCache);
 
         status.innerHTML =
@@ -94,6 +190,7 @@ async function loadPresence() {
 
         presenceCache = await response.json();
 
+        updateSummaryCards();
         updatePresenceIndicators();
     }
     catch (error) {
@@ -458,6 +555,8 @@ async function loadHardware() {
         }
 
         hardwareCache = await response.json();
+
+        updateSummaryCards();
     }
     catch (error) {
         console.error("Hardware:", error);
