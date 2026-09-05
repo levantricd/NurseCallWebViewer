@@ -3,56 +3,639 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Nurse Call Web Viewer</title>
+
     <link rel="stylesheet" href="/css/site.css">
 </head>
 
 <body>
 
-    <header class="topbar">
-        <div>
-            <h1>Nurse Call</h1>
-            <div class="subtitle">Web Viewer</div>
-        </div>
+    <div class="app">
 
-        <div class="system-status">
-            <span class="status-dot"></span>
-            <span>Đang kết nối</span>
-        </div>
-    </header>
+        <!-- =====================================================
+             SIDEBAR
+             ===================================================== -->
 
-    <main>
+        <aside class="sidebar" id="sidebar">
 
-        <section id="active-calls" class="active-calls-section">
-            <div class="active-calls-header">
-                <div>
-                    <h2>Cuộc gọi đang hoạt động</h2>
-                    <div id="active-calls-summary">
-                        Đang kiểm tra...
+            <div class="sidebar-brand">
+
+                <div class="brand-icon">
+                    NC
+                </div>
+
+                <div class="brand-text">
+                    <strong>Nurse Call</strong>
+                    <span>Web Viewer</span>
+                </div>
+
+            </div>
+
+
+            <nav class="main-menu">
+
+                <div class="menu-section">
+                    GIÁM SÁT
+                </div>
+
+                <a class="menu-item active"
+                   href="/"
+                   data-menu="dashboard">
+
+                    <span class="menu-icon">⌂</span>
+                    <span>Tổng quan</span>
+
+                </a>
+
+
+                <a class="menu-item"
+                   href="#active-calls"
+                   data-menu="calls">
+
+                    <span class="menu-icon">🔔</span>
+                    <span>Cuộc gọi</span>
+
+                    <span class="menu-badge"
+                          id="menu-call-count">
+                        0
+                    </span>
+
+                </a>
+
+
+                <a class="menu-item"
+                   href="#viewer"
+                   data-menu="rooms">
+
+                    <span class="menu-icon">▦</span>
+                    <span>Phòng &amp; giường</span>
+
+                </a>
+
+
+                <a class="menu-item"
+                   href="#presence"
+                   data-menu="presence">
+
+                    <span class="menu-icon">●</span>
+                    <span>Hiện diện</span>
+
+                </a>
+
+
+                <div class="menu-section">
+                    TRA CỨU
+                </div>
+
+
+                <a class="menu-item"
+                   href="#departments"
+                   data-menu="departments">
+
+                    <span class="menu-icon">▤</span>
+                    <span>Khoa</span>
+
+                </a>
+
+
+                <a class="menu-item"
+                   href="#hardware"
+                   data-menu="hardware">
+
+                    <span class="menu-icon">▣</span>
+                    <span>Thiết bị</span>
+
+                </a>
+
+
+                <a class="menu-item"
+                   href="/history.html"
+                   data-menu="history">
+
+                    <span class="menu-icon">◷</span>
+                    <span>Lịch sử</span>
+
+                </a>
+
+
+                <div class="menu-section">
+                    HỆ THỐNG
+                </div>
+
+
+                <a class="menu-item"
+                   href="#system"
+                   data-menu="system">
+
+                    <span class="menu-icon">⚙</span>
+                    <span>Hệ thống</span>
+
+                </a>
+
+            </nav>
+
+
+            <div class="sidebar-footer">
+
+                <div class="connection-indicator">
+                    <span class="status-dot"></span>
+
+                    <div>
+                        <strong>CODACO</strong>
+                        <small id="sidebar-connection">
+                            Đang kết nối
+                        </small>
                     </div>
                 </div>
 
-                <div id="calls-status" class="calls-status">
-                    Đang tải
+            </div>
+
+        </aside>
+
+
+        <!-- =====================================================
+             MAIN
+             ===================================================== -->
+
+        <div class="app-main">
+
+
+            <!-- TOPBAR -->
+
+            <header class="topbar">
+
+                <button class="menu-toggle"
+                        id="menu-toggle"
+                        type="button"
+                        aria-label="Mở menu">
+
+                    ☰
+
+                </button>
+
+
+                <div class="topbar-title">
+
+                    <h1>Nurse Call</h1>
+
+                    <div class="subtitle">
+                        Hệ thống giám sát gọi điều dưỡng
+                    </div>
+
                 </div>
-            </div>
 
-            <div id="calls-list" class="calls-list">
-                <div class="loading">
-                    Đang tải cuộc gọi...
+
+                <div class="topbar-right">
+
+                    <div class="system-status">
+
+                        <span class="status-dot"></span>
+
+                        <span>Đang kết nối</span>
+
+                    </div>
+
                 </div>
-            </div>
-        </section>
 
-        <section id="viewer">
-            <div class="loading">
-                Đang tải dữ liệu...
-            </div>
-        </section>
+            </header>
 
-    </main>
+
+            <!-- CONTENT -->
+
+            <main class="dashboard">
+
+
+                <!-- PAGE HEADER -->
+
+                <section class="page-header">
+
+                    <div>
+
+                        <h2>Tổng quan</h2>
+
+                        <p>
+                            Giám sát trạng thái hệ thống Nurse Call
+                        </p>
+
+                    </div>
+
+
+                    <div class="page-time"
+                         id="current-time">
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     SUMMARY CARDS
+                     ================================================= -->
+
+                <section class="summary-grid">
+
+                    <div class="summary-card summary-call">
+
+                        <div class="summary-icon">
+                            🔔
+                        </div>
+
+                        <div>
+
+                            <span class="summary-label">
+                                Cuộc gọi
+                            </span>
+
+                            <strong id="summary-calls">
+                                0
+                            </strong>
+
+                            <small>
+                                đang hoạt động
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-card">
+
+                        <div class="summary-icon">
+                            ●
+                        </div>
+
+                        <div>
+
+                            <span class="summary-label">
+                                Hiện diện
+                            </span>
+
+                            <strong id="summary-presence">
+                                0
+                            </strong>
+
+                            <small>
+                                nhân viên
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-card">
+
+                        <div class="summary-icon">
+                            ▦
+                        </div>
+
+                        <div>
+
+                            <span class="summary-label">
+                                Phòng
+                            </span>
+
+                            <strong id="summary-rooms">
+                                -
+                            </strong>
+
+                            <small>
+                                đang giám sát
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-card">
+
+                        <div class="summary-icon">
+                            ▣
+                        </div>
+
+                        <div>
+
+                            <span class="summary-label">
+                                Thiết bị
+                            </span>
+
+                            <strong id="summary-devices">
+                                -
+                            </strong>
+
+                            <small>
+                                thiết bị
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     ACTIVE CALLS
+                     ================================================= -->
+
+                <section id="active-calls"
+                         class="dashboard-section">
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <h2>Cuộc gọi đang hoạt động</h2>
+
+                            <p id="active-calls-summary">
+                                Đang kiểm tra...
+                            </p>
+
+                        </div>
+
+
+                        <div id="calls-status"
+                             class="calls-status">
+
+                            Đang tải
+
+                        </div>
+
+                    </div>
+
+
+                    <div id="calls-list"
+                         class="calls-list">
+
+                        <div class="loading">
+                            Đang tải cuộc gọi...
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     PRESENCE
+                     ================================================= -->
+
+                <section id="presence"
+                         class="dashboard-section dashboard-placeholder">
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <h2>Hiện diện</h2>
+
+                            <p>
+                                Trạng thái hiện diện điều dưỡng và bác sĩ
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="info-placeholder">
+
+                        <span>●</span>
+
+                        <div>
+                            <strong>Đang giám sát realtime</strong>
+                            <small>
+                                Trạng thái hiện diện được hiển thị
+                                trực tiếp trên phòng và giường.
+                            </small>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     DEPARTMENTS / ROOMS
+                     ================================================= -->
+
+                <section id="departments"
+                         class="dashboard-section">
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <h2>Khoa &amp; phòng</h2>
+
+                            <p>
+                                Danh sách phòng và giường đang giám sát
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div id="viewer">
+
+                        <div class="loading">
+                            Đang tải dữ liệu...
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     HARDWARE
+                     ================================================= -->
+
+                <section id="hardware"
+                         class="dashboard-section dashboard-placeholder">
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <h2>Thiết bị</h2>
+
+                            <p>
+                                Trạng thái thiết bị Nurse Call
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-placeholder">
+
+                        <span>▣</span>
+
+                        <div>
+                            <strong>
+                                Thiết bị được giám sát theo phòng
+                            </strong>
+
+                            <small>
+                                Nhấp vào một phòng để xem chi tiết
+                                Endpoint và Hardware.
+                            </small>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     SYSTEM
+                     ================================================= -->
+
+                <section id="system"
+                         class="dashboard-section dashboard-placeholder">
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <h2>Hệ thống</h2>
+
+                            <p>
+                                Trạng thái kết nối Nurse Call
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="system-info-grid">
+
+                        <div>
+                            <span>Nguồn dữ liệu</span>
+                            <strong>CODACO MySQL</strong>
+                        </div>
+
+                        <div>
+                            <span>Địa chỉ</span>
+                            <strong>172.16.0.9</strong>
+                        </div>
+
+                        <div>
+                            <span>Trạng thái</span>
+                            <strong class="text-online">
+                                Đang kết nối
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </main>
+
+        </div>
+
+    </div>
+
+
+    <!-- OVERLAY MOBILE -->
+
+    <div class="sidebar-overlay"
+         id="sidebar-overlay">
+    </div>
+
 
     <script src="/js/site.js"></script>
+
+
+    <script>
+
+        // =========================================================
+        // CLOCK
+        // =========================================================
+
+        function updateClock() {
+
+            const element =
+                document.getElementById("current-time");
+
+            if (!element)
+                return;
+
+            const now = new Date();
+
+            element.textContent =
+                now.toLocaleString("vi-VN", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit"
+                });
+        }
+
+        updateClock();
+
+        setInterval(updateClock, 1000);
+
+
+        // =========================================================
+        // MOBILE SIDEBAR
+        // =========================================================
+
+        const toggle =
+            document.getElementById("menu-toggle");
+
+        const sidebar =
+            document.getElementById("sidebar");
+
+        const overlay =
+            document.getElementById("sidebar-overlay");
+
+
+        function closeSidebar() {
+
+            sidebar?.classList.remove("open");
+            overlay?.classList.remove("visible");
+
+        }
+
+
+        toggle?.addEventListener("click", () => {
+
+            sidebar?.classList.toggle("open");
+            overlay?.classList.toggle("visible");
+
+        });
+
+
+        overlay?.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+
+        document
+            .querySelectorAll(".menu-item")
+            .forEach(item => {
+
+                item.addEventListener("click", () => {
+
+                    if (window.innerWidth <= 900) {
+                        closeSidebar();
+                    }
+
+                });
+
+            });
+
+    </script>
 
 </body>
 </html>
