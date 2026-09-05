@@ -466,18 +466,46 @@ async function loadHardware() {
 }
 
 
-function showRoomDetail(room) {
+async function showRoomDetail(room) {
     const existing = document.querySelector(".room-modal");
 
     if (existing) {
         existing.remove();
     }
 
-    const hardware = hardwareCache.filter(item =>
-        Number(item.idSegment) === Number(room.idSegment) &&
-        Number(item.idDepartment) === Number(room.idDepartment) &&
-        Number(item.room) === Number(room.room)
-    );
+    // ============================================================
+    // LOAD HARDWARE MỚI NHẤT
+    // ============================================================
+
+    let hardware = [];
+
+    try {
+        const response = await fetch("/api/hardware", {
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
+
+        const allHardware = await response.json();
+
+        hardware = allHardware.filter(item =>
+            Number(item.idSegment) === Number(room.idSegment) &&
+            Number(item.idDepartment) === Number(room.idDepartment) &&
+            Number(item.room) === Number(room.room)
+        );
+    }
+    catch (error) {
+        console.error("Room hardware:", error);
+
+        hardware = [];
+    }
+
+
+    // ============================================================
+    // ENDPOINT / BED
+    // ============================================================
 
     const endpointRows = room.endpoints
         .map(endpoint => {
@@ -505,7 +533,9 @@ function showRoomDetail(room) {
             return `
                 <tr>
                     <td>
-                        <strong>Giường ${escapeHtml(endpoint.bed)}</strong>
+                        <strong>
+                            Giường ${escapeHtml(endpoint.bed)}
+                        </strong>
                     </td>
 
                     <td>
@@ -534,40 +564,52 @@ function showRoomDetail(room) {
         })
         .join("");
 
+
+    // ============================================================
+    // HARDWARE
+    // ============================================================
+
     const hardwareRows = hardware.length > 0
-        ? hardware.map(item => {
 
-            const hardwareOk =
-                Number(item.errorState) === 0;
+        ? hardware
+            .sort((a, b) =>
+                Number(a.position) - Number(b.position)
+            )
+            .map(item => {
 
-            return `
-                <tr>
-                    <td>
-                        ${escapeHtml(item.position)}
-                    </td>
+                const hardwareOk =
+                    Number(item.errorState) === 0;
 
-                    <td>
-                        ${escapeHtml(item.elementName || "")}
-                    </td>
+                return `
+                    <tr>
+                        <td>
+                            ${escapeHtml(item.position)}
+                        </td>
 
-                    <td>
-                        ${escapeHtml(item.ipAddr || "")}
-                    </td>
+                        <td>
+                            ${escapeHtml(item.elementName || "")}
+                        </td>
 
-                    <td>
-                        ${escapeHtml(item.macAddr || "")}
-                    </td>
+                        <td>
+                            ${escapeHtml(item.ipAddr || "")}
+                        </td>
 
-                    <td>
-                        ${hardwareOk
-                    ? '<span class="detail-status ok">OK</span>'
-                    : `<span class="detail-status error">
-                                Error ${escapeHtml(item.errorState)}
-                               </span>`}
-                    </td>
-                </tr>
-            `;
-        }).join("")
+                        <td>
+                            ${escapeHtml(item.macAddr || "")}
+                        </td>
+
+                        <td>
+                            ${hardwareOk
+                        ? '<span class="detail-status ok">OK</span>'
+                        : `<span class="detail-status error">
+                                    Error ${escapeHtml(item.errorState)}
+                                   </span>`}
+                        </td>
+                    </tr>
+                `;
+            })
+            .join("")
+
         : `
             <tr>
                 <td colspan="5" class="muted">
@@ -575,6 +617,11 @@ function showRoomDetail(room) {
                 </td>
             </tr>
         `;
+
+
+    // ============================================================
+    // MODAL
+    // ============================================================
 
     const modal = document.createElement("div");
 
@@ -588,7 +635,9 @@ function showRoomDetail(room) {
             <div class="room-modal-header">
 
                 <div>
-                    <h2>Phòng ${escapeHtml(room.room)}</h2>
+                    <h2>
+                        Phòng ${escapeHtml(room.room)}
+                    </h2>
 
                     <div class="room-modal-subtitle">
                         Thông tin phòng và thiết bị
@@ -668,7 +717,13 @@ function showRoomDetail(room) {
         </div>
     `;
 
+
     document.body.appendChild(modal);
+
+
+    // ============================================================
+    // CLOSE
+    // ============================================================
 
     modal.querySelector(".room-modal-close")
         .addEventListener("click", () => {
