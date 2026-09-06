@@ -1,8 +1,5 @@
 ---
 
-# `docs/DATABASE.md`
-
-```markdown
 # CODACO Nurse Call Database
 
 ## 1. Tổng quan
@@ -11,6 +8,7 @@ Database của hệ thống Nurse Call CODACO có tên:
 
 ```text
 CodacoNC
+```
 
 Database server hiện tại:
 
@@ -24,7 +22,7 @@ Database đang được hệ thống Nurse Call sử dụng trong thực tế.
 
 WebViewer chỉ được phép đọc dữ liệu từ database này.
 
-2. Nguyên tắc an toàn
+# 2. Nguyên tắc an toàn
 
 Database CODACO là database của hệ thống đang vận hành.
 
@@ -54,7 +52,7 @@ Configuration.
 
 WebViewer không được gửi lệnh điều khiển đến thiết bị Nurse Call thông qua database.
 
-3. Các bảng
+# 3. Các bảng
 
 Database CodacoNC có 12 bảng:
 
@@ -70,7 +68,7 @@ Patients
 Presence
 SysInfo
 HardwareState
-4. Calls
+# 4. Calls
 
 Mục đích:
 
@@ -114,7 +112,7 @@ AccesorButtonId
 
 Không sử dụng tên ButtonId.
 
-5. Departments
+# 5. Departments
 
 Mục đích:
 
@@ -141,7 +139,7 @@ idSegment	idDepartment	Name	CountEndPoints
 6	6	KHOA_NOI	6
 5	5	KHOA_NHI	7
 2	2	KHOA_PHAU_THUAT	6
-6. EndPoints
+# 6. EndPoints
 
 Mục đích:
 
@@ -178,7 +176,7 @@ Không JOIN với Patients chỉ để đếm thiết bị.
 
 Việc JOIN như vậy trước đây đã gây ra dữ liệu phòng bị trùng trong WebViewer.
 
-7. Patients
+# 7. Patients
 
 Mục đích:
 
@@ -210,7 +208,7 @@ Patients có thể được sử dụng khi WebViewer cần hiển thị thông 
 
 Không sử dụng bảng này thay cho EndPoints để thống kê thiết bị.
 
-8. Presence
+# 8. Presence
 
 Mục đích:
 
@@ -233,7 +231,7 @@ TypeOfPresence	Ý nghĩa
 1	Điều dưỡng
 2	Điều dưỡng
 3	Bác sĩ / Blue
-9. History
+# 9. History
 
 Mục đích:
 
@@ -281,7 +279,7 @@ Lịch sử hiện diện.
 Lọc lịch sử.
 Hiển thị lịch sử.
 Xuất Excel.
-10. HistoryCache
+# 10. HistoryCache
 
 Mục đích:
 
@@ -297,7 +295,7 @@ trong hệ thống CODACO hiện tại.
 
 Không sử dụng HistoryCache thay cho History khi cần truy vấn lịch sử đầy đủ.
 
-11. HardwareState
+# 11. HardwareState
 
 Mục đích:
 
@@ -328,7 +326,7 @@ Room
 
 vì nhiều khoa có thể có cùng số phòng.
 
-12. SysInfo
+# 12. SysInfo
 
 Mục đích:
 
@@ -351,7 +349,7 @@ Firmware
 
 Có thể sử dụng để hiển thị trạng thái hệ thống trên WebViewer.
 
-13. CardUsers
+# 13. CardUsers
 
 Mục đích:
 
@@ -360,7 +358,7 @@ Thông tin người dùng/thẻ.
 Trong snapshot đã kiểm tra:
 
 0 rows
-14. DepIntegrations
+# 14. DepIntegrations
 
 Mục đích:
 
@@ -369,7 +367,7 @@ Thông tin tích hợp theo khoa.
 Trong snapshot đã kiểm tra:
 
 0 rows
-15. IncomePatients
+# 15. IncomePatients
 
 Mục đích:
 
@@ -378,7 +376,7 @@ Thông tin liên quan đến tiếp nhận bệnh nhân.
 Trong snapshot đã kiểm tra:
 
 0 rows
-16. Database snapshot
+# 16. Database snapshot
 
 Snapshot dữ liệu tại thời điểm kiểm tra:
 
@@ -398,7 +396,7 @@ SysInfo	1
 
 Đây là số liệu tại thời điểm kiểm tra, không phải giá trị cố định.
 
-17. Quan hệ định danh
+# 17. Quan hệ định danh
 Khoa
 idSegment + idDepartment
 Phòng
@@ -418,7 +416,7 @@ idDepartment
 
 để định danh dữ liệu.
 
-18. Ví dụ phòng 4
+# 18. Ví dụ phòng 4
 
 Một phòng đã được kiểm tra:
 
@@ -461,7 +459,7 @@ Room = 0
 ElementName = MT-07IP
 IpAddr = 172.16.2.2
 ErrorState = 403
-19. Storage engine
+# 19. Storage engine
 
 Trong database CODACO hiện tại:
 
@@ -485,7 +483,7 @@ CardUsers = MyISAM
 
 Không thay đổi storage engine của database CODACO.
 
-20. WebViewer database access
+# 20. WebViewer database access
 
 Kiến trúc hiện tại:
 
@@ -519,7 +517,7 @@ Lọc.
 Thống kê.
 Xem lịch sử.
 Xuất báo cáo.
-21. Quy tắc query
+# 21. Quy tắc query
 
 Khi viết query cho WebViewer:
 
@@ -535,7 +533,7 @@ Thay đổi cấu trúc.
 Thay đổi cấu hình database.
 Tự tạo quan hệ không được xác nhận.
 Tự suy đoán ý nghĩa của trường chưa được xác định.
-22. Các lưu ý quan trọng
+# 22. Các lưu ý quan trọng
 1. AccesorButtonId
 
 Tên chính xác:
@@ -575,7 +573,7 @@ Không JOIN Patients chỉ để đếm thiết bị.
 
 WebViewer không được thay đổi database CODACO.
 
-23. Trạng thái tài liệu
+# 23. Trạng thái tài liệu
 
 Tài liệu được xây dựng từ:
 
