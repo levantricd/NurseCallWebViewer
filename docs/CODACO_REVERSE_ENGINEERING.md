@@ -240,18 +240,21 @@ Các sự kiện:
 ```text
 TypeOfCall IN (1, 2, 4, 10, 24)
 OR TypeOfPresence > 0
+```
 
-Nhóm liên quan đến phòng
+### Nhóm liên quan đến phòng
 
 Các sự kiện:
 
+```text
 TypeOfCall = 3
 OR TypeOfCall BETWEEN 5 AND 9
 OR TypeOfPresence > 0
+```
 
 Logic này được sử dụng làm cơ sở để hiểu cách NCViewer phân loại dữ liệu.
 
-9. Departments
+# 9. Departments
 
 Bảng Departments chứa thông tin khoa.
 
@@ -281,7 +284,8 @@ Tổng cộng:
 
 4 khoa
 24 EndPoints
-10. EndPoints
+
+# 10. EndPoints
 
 EndPoints chứa các thiết bị/đầu cuối Nurse Call.
 
@@ -312,7 +316,7 @@ Không JOIN EndPoints với Patients chỉ để đếm thiết bị.
 
 Trong quá trình phát triển WebViewer, JOIN với Patients đã từng gây ra tình trạng phòng bị hiển thị trùng.
 
-11. Patients
+# 11. Patients
 
 Patients chứa thông tin bệnh nhân gắn với các phòng/giường.
 
@@ -340,7 +344,7 @@ Bảng này có thể được sử dụng khi cần hiển thị thông tin b�
 
 Tuy nhiên không sử dụng Patients làm nguồn chính để đếm EndPoints.
 
-12. HardwareState
+# 12. HardwareState
 
 HardwareState chứa trạng thái phần cứng.
 
@@ -364,7 +368,7 @@ idSegment
 
 Không chỉ lọc theo Room.
 
-13. SysInfo
+# 13. SysInfo
 
 SysInfo chứa thông tin hệ thống CODACO.
 
@@ -385,7 +389,7 @@ Firmware
 
 Thông tin này có thể được sử dụng để hiển thị trạng thái hệ thống trên WebViewer.
 
-14. Các bảng khác
+# 14. Các bảng khác
 CardUsers
 
 Quản lý thông tin thẻ/người dùng.
@@ -402,7 +406,7 @@ IncomePatients
 
 Thông tin liên quan đến tiếp nhận bệnh nhân.
 
-15. Snapshot dữ liệu đã quan sát
+# 15. Snapshot dữ liệu đã quan sát
 
 Tại thời điểm kiểm tra hệ thống:
 
@@ -422,7 +426,7 @@ SysInfo	1
 
 Các giá trị này chỉ là snapshot tại thời điểm kiểm tra và không được xem là số liệu cố định.
 
-16. Ví dụ phòng 4
+# 16. Ví dụ phòng 4
 
 Một ví dụ đã được kiểm tra là:
 
@@ -465,7 +469,8 @@ Room 0
 MT-07IP
 172.16.2.2
 ErrorState 403
-17. Nguyên tắc an toàn
+
+# 17. Nguyên tắc an toàn
 
 Hệ thống CODACO hiện tại là hệ thống đang vận hành.
 
@@ -483,7 +488,7 @@ Không thực hiện các chức năng quản trị của NCViewer/Admin.
 
 Các chức năng ghi dữ liệu phát hiện trong quá trình reverse engineering chỉ được ghi nhận để hiểu hệ thống, không được đưa vào WebViewer.
 
-18. WebViewer
+# 18. WebViewer
 
 WebViewer là ứng dụng ASP.NET Core được xây dựng để cung cấp giao diện web thay cho việc chỉ sử dụng NCViewer trên Windows.
 
@@ -514,7 +519,7 @@ Browser
 
 WebViewer không thay đổi hệ thống Nurse Call hiện tại.
 
-19. Nguyên tắc phát triển tiếp theo
+# 19. Nguyên tắc phát triển tiếp theo
 
 Khi phát triển WebViewer:
 
@@ -528,7 +533,8 @@ Dùng idSegment + idDepartment + Room khi xác định phòng.
 Dùng EndPoints làm nguồn chính để thống kê thiết bị.
 Giữ nguyên tên trường database, đặc biệt AccesorButtonId.
 Khi phát hiện hành vi mới của NCViewer, cập nhật tài liệu reverse engineering trước khi đưa vào code.
-20. Trạng thái tài liệu
+
+# 20. Trạng thái tài liệu
 
 Tài liệu này là kết quả reverse engineering dựa trên:
 
