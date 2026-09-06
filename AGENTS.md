@@ -1,4 +1,3 @@
-﻿# AGENTS.md
 # Hướng dẫn cho Codex – NurseCallWebViewer
 
 ## 1. Quy tắc trước khi sửa code
