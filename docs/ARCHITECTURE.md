@@ -1,522 +1,489 @@
-\# Kiến trúc hệ thống NurseCallWebViewer
+# Architecture
 
+## 1. Tổng quan
 
+NurseCallWebViewer là ứng dụng web ASP.NET Core dùng để đọc và hiển thị dữ liệu từ hệ thống CODACO Nurse Call.
 
-\## 1. Tổng quan
-
-
-
-`NurseCallWebViewer` là ứng dụng web ASP.NET Core dùng để hiển thị và theo dõi hệ thống Nurse Call.
-
-
-
-Kiến trúc hiện tại được giữ đơn giản:
-
-
+Kiến trúc hiện tại:
 
 ```text
+Browser
+   │
+   │ HTTP
+   ▼
+ASP.NET Core
+   │
+   ├── API
+   │
+   └── Services
+          │
+          ▼
+       CodacoDb
+          │
+          ▼
+       mysql.exe
+          │
+          ▼
+   MySQL - CodacoNC
+   172.16.0.9:3306
+   WebViewer không điều khiển hệ thống Nurse Call.
 
-┌─────────────────────┐
+WebViewer chỉ đọc dữ liệu từ database CODACO.
 
-│      Trình duyệt    │
+2. Thành phần chính
 
-│ HTML / CSS / JS     │
+Project hiện tại:
 
-└──────────┬──────────┘
-
-&#x20;          │ HTTP
-
-&#x20;          ▼
-
-┌─────────────────────┐
-
-│    ASP.NET Core     │
-
-│        API          │
-
-└──────────┬──────────┘
-
-&#x20;          │
-
-&#x20;          ▼
-
-┌─────────────────────┐
-
-│      Services       │
-
-│                     │
-
-│ CallService         │
-
-│ DepartmentService   │
-
-│ EndpointService     │
-
-│ HardwareService     │
-
-│ HistoryService      │
-
-│ PresenceService     │
-
-│ ViewerService       │
-
-└──────────┬──────────┘
-
-&#x20;          │
-
-&#x20;          ▼
-
-┌─────────────────────┐
-
-│      CodacoDb       │
-
-│ Database access     │
-
-└──────────┬──────────┘
-
-&#x20;          │
-
-&#x20;          ▼
-
-┌─────────────────────┐
-
-│        MySQL        │
-
-│ Nurse Call Database │
-
-└─────────────────────┘
-
-2. Project structure
-
-Project chính:
-Cấu trúc logic:
-NurseCall.Web
-NurseCall.Web
+NurseCallWebViewer/
 │
-├── Data
-│   └── CodacoDb.cs
+├── NurseCall.Web/
+│   ├── Models/
+│   ├── Services/
+│   ├── wwwroot/
+│   │   ├── index.html
+│   │   ├── history.html
+│   │   ├── site.css
+│   │   ├── site.js
+│   │   └── history.js
+│   │
+│   └── Program.cs
 │
-├── Models
-│   ├── Call.cs
-│   ├── Department.cs
-│   ├── EndPoint.cs
-│   ├── HardwareState.cs
-│   ├── History.cs
-│   ├── Patient.cs
-│   └── Presence.cs
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── CODACO_REVERSE_ENGINEERING.md
+│   ├── DATABASE.md
+│   ├── DECISIONS.md
+│   └── PROJECT_CONTEXT.md
 │
-├── Services
-│   ├── CallService.cs
-│   ├── DepartmentService.cs
-│   ├── EndpointService.cs
-│   ├── HardwareService.cs
-│   ├── HistoryService.cs
-│   ├── PresenceService.cs
-│   └── ViewerService.cs
-│
-├── wwwroot
-│   ├── index.html
-│   ├── history.html
-│   ├── css
-│   │   └── site.css
-│   └── js
-│       ├── site.js
-│       └── history.js
-│
-├── Program.cs
-├── appsettings.json
-└── appsettings.Development.json
+└── AGENTS.md
+3. ASP.NET Core
 
+Ứng dụng sử dụng ASP.NET Core.
 
-3. Dependency Injection
+Program.cs chịu trách nhiệm:
 
-Các service được đăng ký trong Program.cs.
+Khởi tạo ứng dụng.
+Đăng ký services.
+Mapping API.
+Phục vụ static files.
+Mapping các endpoint HTTP.
 
-Singleton
+Frontend gọi API trực tiếp từ trình duyệt.
 
-CodacoDb
-
-Scoped
-DepartmentService
-EndpointService
-ViewerService
-HistoryService
+4. Services
 CallService
-PresenceService
-HardwareService
 
-Mô hình phụ thuộc:
-API / Endpoint
-       │
-       ▼
-    Service
-       │
-       ▼
-    CodacoDb
-Service chịu trách nhiệm xử lý nghiệp vụ và truy vấn dữ liệu cần thiết.
+Đọc dữ liệu từ bảng:
 
-4. CodacoDb
+Calls
 
-File:
+Chức năng:
 
-Data/CodacoDb.cs
+Lấy các cuộc gọi đang hoạt động.
+Phục vụ /api/calls.
 
-CodacoDb là lớp truy cập database dùng chung.
+Frontend polling API này để cập nhật realtime.
 
-Connection string được lấy từ cấu hình:
-
-CodacoNC
-
-Hiện tại project sử dụng MySQL command line client:
-
-C:\mysql57\bin\mysql.exe
-
-Các tham số kết nối được xây dựng bằng MySqlConnectionStringBuilder.
-
-MySQL command được chạy thông qua process.
-
-Password được truyền qua biến môi trường:
-
-MYSQL_PWD
-Không đưa password hoặc connection string chứa password vào source code.
-
-Quy tắc quan trọng
-
-Không tự ý thay đổi CodacoDb sang ORM hoặc database provider khác.
-
-Nếu cần thay đổi cơ chế database access, phải đánh giá ảnh hưởng đến toàn bộ Services trước.
-
-5. Services
 DepartmentService
 
-Phụ trách dữ liệu khoa/phòng.
-
-API liên quan:
-
-GET /api/departments
-EndpointService
-
-Phụ trách dữ liệu các endpoint/thiết bị Nurse Call.
-
-API liên quan:
-
-GET /api/endpoints
-
-Nguồn dữ liệu endpoint cần được phân biệt rõ với dữ liệu bệnh nhân.
-
-ViewerService
-
-Phụ trách dữ liệu tổng hợp cho màn hình Viewer/Dashboard.
-
-API:
-
-GET /api/viewer
-
-Viewer lấy dữ liệu chính từ:
+Đọc bảng:
 
 Departments
+
+Chức năng:
+
+Lấy danh sách khoa.
+Hiển thị tên khoa.
+Phục vụ /api/departments.
+
+Một khoa được nhận diện bằng:
+
+idSegment + idDepartment
+
+Không sử dụng riêng idDepartment.
+
+EndpointService
+
+Đọc bảng:
+
 EndPoints
 
-Quan hệ:
-Departments
-     │
-     │ idSegment + idDepartment
-     ▼
- EndPoints
+Chức năng:
 
-Hiện tại sử dụng:
+Lấy danh sách thiết bị đầu cuối.
+Xác định số lượng thiết bị.
+Phục vụ /api/endpoints.
 
-Departments d
-LEFT JOIN EndPoints e
+EndPoints là nguồn chính để thống kê thiết bị đầu cuối.
 
-theo:
+Không JOIN với Patients để đếm thiết bị vì có thể tạo dữ liệu trùng.
 
-e.idSegment = d.idSegment
-e.idDepartment = d.idDepartment
+ViewerService
 
-Dữ liệu sau khi truy vấn được nhóm thành:
+Tổng hợp dữ liệu phục vụ màn hình:
 
-ViewerDepartment
+Khoa.
+Phòng.
+Giường.
+Thiết bị đầu cuối.
 
-và:
+Quan hệ dữ liệu sử dụng:
 
-ViewerEndpoint
+Department
+    │
+    └── EndPoints
+          │
+          └── Room
+                │
+                └── Bed
 
-Thứ tự hiện tại:
-
-segment
-department
-room
-bed
-Quy tắc rất quan trọng
-
-EndPoints là nguồn xác định số lượng thiết bị.
-
-Không JOIN Patients vào truy vấn Viewer chỉ để đếm thiết bị.
-
-Lý do:
-
-Một MAC có thể xuất hiện trong nhiều bản ghi Patients, dẫn đến duplicate và thống kê sai.
-
-CallService
-
-Phụ trách dữ liệu cuộc gọi Nurse Call.
-
-API:
-
-GET /api/calls
-
-Dữ liệu được sử dụng để hiển thị trạng thái/cuộc gọi trên dashboard.
-
-Khi thay đổi logic cuộc gọi cần kiểm tra cả frontend realtime display.
-
-PresenceService
-
-Phụ trách trạng thái Presence.
-
-API:
-
-GET /api/presence
-
-HardwareService
-
-Phụ trách trạng thái phần cứng.
-
-API:
-
-GET /api/hardware
-
-HistoryService
-
-Phụ trách lịch sử Nurse Call.
-
-API:
-
-GET /api/history
-
-và:
-
-GET /api/history/export
-
-API history hỗ trợ các bộ lọc:
+Khi xác định phòng phải sử dụng đầy đủ:
 
 idSegment
 idDepartment
-room
-fromDate
-toDate
+Room
 
-GetFilteredAsync(...) hiện giới hạn số lượng kết quả ở:
+Không sử dụng riêng Room.
 
-10000
+PresenceService
 
-6. Export Excel
+Đọc bảng:
 
-API:
+Presence
 
-GET /api/history/export
+Chức năng:
 
-Sử dụng thư viện:
+Hiển thị điều dưỡng hiện diện.
+Hiển thị bác sĩ hiện diện.
+Phục vụ /api/presence.
 
-ClosedXML
+Mapping:
 
-File Excel được tạo trực tiếp từ dữ liệu lịch sử.
+TypeOfPresence = 1 → Điều dưỡng
+TypeOfPresence = 2 → Điều dưỡng
+TypeOfPresence = 3 → Bác sĩ
+HardwareService
 
-Tên file có dạng:
+Đọc bảng:
 
-NurseCall_History_yyyyMMdd_HHmmss.xlsx
+HardwareState
 
-Khi thay đổi HistoryService phải kiểm tra cả chức năng export.
+Chức năng:
 
-7. Frontend
+Hiển thị trạng thái phần cứng.
+Hiển thị thiết bị trong phòng.
+Phục vụ /api/hardware.
 
-Frontend hiện tại không sử dụng framework SPA.
+Khi lọc thiết bị của một phòng phải sử dụng:
 
-Sử dụng:
+idSegment
+idDepartment
+Room
 
-HTML
-CSS
-JavaScript
-Dashboard
+Điều này tránh lấy nhầm thiết bị của phòng có cùng số Room ở khoa khác.
 
-File:
+HistoryService
 
-wwwroot/index.html
-
-JavaScript chính:
-
-wwwroot/js/site.js
-
-CSS:
-
-wwwroot/css/site.css
+Đọc bảng:
 
 History
 
-File:
+Chức năng:
 
-wwwroot/history.html
+Hiển thị lịch sử.
+Lọc lịch sử.
+Xuất Excel.
 
-JavaScript:
+API:
 
-wwwroot/js/history.js
-
-8. Luồng dữ liệu Viewer
-
-Luồng dữ liệu chính:
-
-MySQL
-  │
-  ▼
-CodacoDb
-  │
-  ▼
-ViewerService
-  │
-  ▼
-GET /api/viewer
-  │
-  ▼
-JavaScript
-  │
-  ▼
-Dashboard
-
-ViewerService chịu trách nhiệm chuyển dữ liệu database thành model phù hợp cho frontend.
-
-Frontend không nên truy cập database trực tiếp.
-
-9. Luồng dữ liệu History
-MySQL
-  │
-  ▼
-CodacoDb
-  │
-  ▼
-HistoryService
-  │
-  ├──────────────► GET /api/history
-  │                       │
-  │                       ▼
-  │                    history.html
-  │
-  └──────────────► GET /api/history/export
-                          │
-                          ▼
-                       Excel file
-10. API hiện tại
-
-Các endpoint hiện có:
-
-GET /api/departments
-GET /api/endpoints
-GET /api/viewer
 GET /api/history
 GET /api/history/export
-GET /api/calls
-GET /api/presence
-GET /api/hardware
 
-Các API này được xem là contract hiện tại.
+File Excel được tạo bằng:
 
-Không tự ý xóa hoặc đổi cấu trúc response nếu không kiểm tra frontend và yêu cầu nghiệp vụ.
+ClosedXML
 
-11. Database principle
+5. Database access
 
-Database Nurse Call là hệ thống dữ liệu có sẵn.
+CodacoDb là lớp chịu trách nhiệm thực hiện truy vấn database.
 
-Ứng dụng NurseCallWebViewer chủ yếu đọc dữ liệu.
+Hiện tại database access sử dụng:
 
-Ưu tiên:
+C:\mysql57\bin\mysql.exe
 
-SELECT
+Luồng:
 
-Hạn chế:
+Service
+   │
+   ▼
+CodacoDb
+   │
+   ▼
+mysql.exe
+   │
+   ▼
+MySQL
+
+Các truy vấn phải chỉ đọc dữ liệu.
+
+Không thực hiện:
 
 INSERT
 UPDATE
 DELETE
+TRUNCATE
 ALTER
 DROP
+CREATE
 
-Không tự ý thay đổi database production.
+trên database CODACO.
 
-12. Nguyên tắc khi phát triển
-Ưu tiên bảo toàn kiến trúc hiện tại
+6. Database CODACO
 
-Không tự ý:
+Database:
 
-chuyển sang Entity Framework;
-chuyển database provider;
-chuyển frontend sang React/Vue/Angular;
-thay đổi toàn bộ Service layer;
-thay đổi database schema;
+CodacoNC
 
-nếu task hiện tại không yêu cầu.
+Server:
 
-Khi sửa một chức năng
+172.16.0.9:3306
 
-Phải kiểm tra chuỗi phụ thuộc:
+MySQL hiện tại của hệ thống CODACO là MySQL 5.5.x.
 
-Database
-   ↓
-CodacoDb
-   ↓
-Service
-   ↓
-API
-   ↓
+Chi tiết schema được ghi trong:
+
+docs/DATABASE.md
+
+Các phát hiện từ reverse engineering được ghi trong:
+
+docs/CODACO_REVERSE_ENGINEERING.md
+
+7. Data identity
+Department identity
+(idSegment, idDepartment)
+Room identity
+(idSegment, idDepartment, Room)
+Bed identity
+(idSegment, idDepartment, Room, Bed)
+
+Khi JOIN hoặc lọc dữ liệu phải sử dụng đầy đủ các thành phần nhận diện cần thiết.
+
+8. Calls
+
+Bảng:
+
+Calls
+
+Các loại cuộc gọi chính:
+
+1  → Gọi điều dưỡng 1
+2  → Gọi điều dưỡng 2
+3  → Gọi phòng
+4  → Cấp cứu bệnh nhân
+5  → Cấp cứu
+6  → Gọi điều dưỡng khẩn
+7  → Gọi dịch vụ
+8  → Báo động
+9  → Gọi bác sĩ
+10 → Code Blue
+24 → Ngắt cuộc gọi
+
+Trường nút gọi trong schema là:
+
+AccesorButtonId
+
+Không sử dụng tên:
+
+ButtonId
+9. Realtime
+
+WebViewer hiện sử dụng polling từ browser.
+
+Ví dụ:
+
+Browser
+   │
+   ├── GET /api/calls
+   │
+   ├── GET /api/presence
+   │
+   └── GET /api/viewer
+
+Các API được gọi định kỳ để cập nhật giao diện.
+
+Cuộc gọi mới
+
+Frontend có thể nhận diện cuộc gọi mới bằng một key ổn định được tạo từ các trường nhận diện cuộc gọi.
+
+Lần tải đầu tiên không được coi toàn bộ cuộc gọi hiện tại là cuộc gọi mới.
+
+Các lần polling tiếp theo chỉ đánh dấu những cuộc gọi chưa xuất hiện ở lần trước.
+
+10. Frontend
+
+Frontend hiện sử dụng:
+
+HTML
+CSS
 JavaScript
-   ↓
-UI
 
-Một thay đổi ở tầng dưới có thể ảnh hưởng đến các tầng phía trên.
+Không sử dụng framework frontend.
 
-13. Nguyên tắc tránh duplicate
+Các file chính:
 
-Đặc biệt chú ý các bảng có thể chứa nhiều bản ghi liên quan cùng một thiết bị/MAC.
+wwwroot/index.html
+wwwroot/history.html
+wwwroot/site.css
+wwwroot/site.js
+wwwroot/history.js
+11. Dashboard
 
-Không dùng JOIN tùy tiện để đếm thiết bị.
+Dashboard chính hiển thị:
 
-Trước khi thay đổi query thống kê:
+Cuộc gọi đang hoạt động.
+Hiện diện.
+Phòng.
+Thiết bị.
+Danh sách khoa.
+Phòng và giường.
+Trạng thái hệ thống.
 
-Xác định bảng nào là nguồn dữ liệu chính.
-Kiểm tra cardinality của quan hệ.
-Kiểm tra khả năng duplicate.
-Kiểm tra kết quả thực tế.
-14. Nguyên tắc realtime
+Sidebar cung cấp các khu vực:
 
-Dashboard có chức năng hiển thị trạng thái/cuộc gọi gần thời gian thực.
+Tổng quan
+Cuộc gọi
+Phòng & giường
+Hiện diện
+Khoa
+Thiết bị
+Lịch sử
+Hệ thống
+12. History và Excel
 
-Khi thay đổi:
+Trang:
 
-CallService;
-API /api/calls;
-JavaScript xử lý call;
-cơ chế polling/reload dữ liệu;
+/history.html
 
-phải kiểm tra toàn bộ chuỗi realtime.
+cho phép:
 
-Không chỉ kiểm tra backend mà bỏ qua frontend.
+Xem lịch sử.
+Lọc theo khoa.
+Lọc theo phòng.
+Lọc theo thời gian.
+Xuất Excel.
 
-15. Khi cần thay đổi kiến trúc
+Endpoint xuất Excel:
 
-Nếu một yêu cầu dẫn đến thay đổi lớn như:
+/api/history/export
 
-thay đổi database access;
-thay đổi database schema;
-thêm middleware quan trọng;
-thay đổi cách realtime;
-thay framework frontend;
-thay đổi cấu trúc API;
+File Excel chứa các thông tin chính:
 
-phải:
+ID
+Segment
+Khoa
+Phòng
+Giường
+Loại cuộc gọi
+Hiện diện
+ID bệnh nhân
+Nội dung A
+Nội dung B
+Ngày bắt đầu
+Giờ bắt đầu
+Ngày kết thúc
+Giờ kết thúc
+Thời gian
+13. Duplicate avoidance
 
-Phân tích kiến trúc hiện tại.
-Đề xuất phương án.
-Đánh giá ảnh hưởng.
-Thống nhất trước khi triển khai.
+Một lỗi quan trọng đã được xác định trong quá trình phát triển:
 
-Quyết định cuối cùng phải được ghi vào:
+Không được dùng JOIN không cần thiết giữa:
 
-docs/DECISIONS.md
+EndPoints
+Patients
+
+để xác định số lượng thiết bị.
+
+Một thiết bị có thể xuất hiện liên quan đến nhiều bản ghi dữ liệu khác, dẫn đến số lượng thiết bị bị nhân đôi.
+
+Do đó:
+
+EndPoints
+
+là nguồn chính cho device count.
+
+14. Hardware room detail
+
+Khi người dùng mở chi tiết thiết bị của một phòng, frontend/API phải xác định phòng bằng:
+
+idSegment
+idDepartment
+Room
+
+Ví dụ:
+
+Room = 4
+
+không đủ để xác định phòng.
+
+Phải xác định:
+
+idSegment = ...
+idDepartment = ...
+Room = 4
+15. API hiện tại
+API	Chức năng
+/api/departments	Danh sách khoa
+/api/endpoints	Thiết bị đầu cuối
+/api/viewer	Khoa/phòng/giường
+/api/calls	Cuộc gọi đang hoạt động
+/api/presence	Hiện diện
+/api/hardware	Trạng thái phần cứng
+/api/history	Lịch sử
+/api/history/export	Xuất lịch sử Excel
+
+Các API này là interface giữa frontend và backend.
+
+Không thay đổi contract nếu không kiểm tra frontend trước.
+
+16. Nguyên tắc an toàn
+
+WebViewer là hệ thống giám sát/hiển thị.
+
+Không được:
+
+Điều khiển thiết bị Nurse Call.
+Ghi dữ liệu vào database CODACO.
+Thay đổi cấu hình hệ thống CODACO.
+Xóa lịch sử.
+Thay đổi trạng thái cuộc gọi.
+Thay đổi bệnh nhân.
+
+Mọi thao tác đều phải giữ nguyên hệ thống CODACO đang vận hành.
+
+17. Nguyên tắc thay đổi kiến trúc
+
+Trước khi thay đổi kiến trúc:
+
+Đọc PROJECT_CONTEXT.md.
+Đọc DECISIONS.md.
+Kiểm tra CODACO_REVERSE_ENGINEERING.md.
+Kiểm tra DATABASE.md.
+
+Nếu một thay đổi ảnh hưởng đến cách truy cập database, API hoặc cấu trúc dữ liệu, phải ghi nhận quyết định trong DECISIONS.md.
+
+Không thực hiện refactor lớn chỉ để thay đổi cách viết code nếu kiến trúc hiện tại vẫn đáp ứng yêu cầu.
+
+18. Phân biệt hiện tại và đề xuất
+
+Tài liệu kiến trúc phải phân biệt rõ:
+
+Current
+
+Những gì WebViewer đang thực sự sử dụng.
+
+Proposed
+
+Những kiến trúc hoặc cải tiến mới chỉ là đề xuất.
+
+Không mô tả một giải pháp chưa triển khai như một thành phần hiện có của hệ thống.

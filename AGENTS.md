@@ -9,7 +9,9 @@ Trước khi thực hiện bất kỳ thay đổi nào:
 2. Đọc docs/PROJECT_CONTEXT.md nếu file tồn tại.
 3. Đọc docs/ARCHITECTURE.md nếu task liên quan đến kiến trúc, database, API, backend hoặc frontend.
 4. Đọc docs/DECISIONS.md nếu task có liên quan đến các quyết định kỹ thuật đã được thống nhất.
-5. Kiểm tra code hiện tại trước khi đưa ra giải pháp hoặc sửa code.
+5. Đọc docs/CODACO_REVERSE_ENGINEERING.md nếu task liên quan đến hệ thống CODACO, Nurse Call, Calls, Presence, History hoặc hành vi của NCViewer/Nurse Call Admin.
+6. Đọc docs/DATABASE.md nếu task liên quan đến database CodacoNC, bảng, field, quan hệ dữ liệu hoặc truy vấn MySQL.
+7. Kiểm tra code hiện tại trước khi đưa ra giải pháp hoặc sửa code.
 
 Không được giả định rằng code hiện tại hoạt động theo cách mình tưởng tượng. Hãy đọc code và xác nhận trước.
 
@@ -39,6 +41,16 @@ Không tự ý:
 - thay đổi cấu trúc bảng;
 
 nếu chưa có yêu cầu rõ ràng.
+
+Đối với database CODACO, phải tuân thủ các kết quả reverse engineering đã được ghi trong:
+
+`docs/CODACO_REVERSE_ENGINEERING.md`
+
+và:
+
+`docs/DATABASE.md`
+
+Không tự ý suy đoán lại tên bảng, tên field, quan hệ hoặc ý nghĩa dữ liệu nếu tài liệu đã có thông tin được xác minh.
 
 ## 4. CodacoDb
 
@@ -159,7 +171,8 @@ Tên class, method, property, API, database table, field và các technical iden
 
 Khi trao đổi với người dùng, ưu tiên tiếng Việt.
 
-## 14.Quy tắc Git
+## 14. Quy tắc Git
+
 - Không tự ý tạo branch mới nếu người dùng chưa yêu cầu.
 - Không tự ý commit nếu người dùng chưa yêu cầu.
 - Không tự ý push lên remote nếu người dùng chưa yêu cầu.
@@ -176,3 +189,31 @@ Khi trao đổi với người dùng, ưu tiên tiếng Việt.
 - Các truy vấn database trong quá trình phát triển phải ưu tiên SELECT.
 - Không chạy script thay đổi database production nếu chưa có sự xác nhận rõ ràng của người dùng.
 - Không tự ý thay đổi connection string hoặc thông tin kết nối database.
+
+## 16. Tài liệu CODACO là nguồn tham chiếu đã xác minh
+
+Khi task liên quan đến hệ thống Nurse Call CODACO:
+
+- `docs/CODACO_REVERSE_ENGINEERING.md` ghi lại các kết quả reverse engineering đã xác định.
+- `docs/DATABASE.md` ghi lại cấu trúc và quy tắc sử dụng database CodacoNC.
+- Không tự ý thay đổi hoặc phủ nhận các thông tin đã được xác minh trong hai tài liệu này chỉ dựa trên suy đoán.
+- Nếu phát hiện thông tin mới mâu thuẫn với tài liệu, phải kiểm tra nguồn thực tế và báo cáo sự khác biệt trước khi sửa tài liệu.
+- Khi một hành vi mới của NCViewer hoặc một đặc điểm mới của database được xác minh, cập nhật tài liệu trước hoặc cùng với thay đổi code liên quan.
+
+## 17. Phân biệt kiến trúc hiện tại và đề xuất tương lai
+
+Codex phải phân biệt rõ:
+
+- kiến trúc WebViewer hiện tại đang chạy;
+- các ý tưởng hoặc đề xuất kiến trúc trong tương lai.
+
+Không được coi một phương án chưa triển khai là thành phần đã tồn tại trong project.
+
+Không tự ý thay đổi kiến trúc hiện tại chỉ vì phát hiện một phương án khác có vẻ tốt hơn.
+
+Nếu task yêu cầu thay đổi kiến trúc, phải:
+
+1. Phân tích kiến trúc hiện tại.
+2. Đề xuất phương án.
+3. Đánh giá ảnh hưởng.
+4. Chờ thống nhất trước khi triển khai.

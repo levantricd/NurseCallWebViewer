@@ -1,586 +1,310 @@
-\# Các quyết định kỹ thuật – NurseCallWebViewer
+# Technical Decisions
 
+Tài liệu này ghi lại các quyết định kỹ thuật quan trọng của NurseCallWebViewer.
 
+Mục tiêu là giúp những lần phát triển sau hiểu được tại sao hệ thống được xây dựng theo cách hiện tại.
 
-Tài liệu này ghi lại các quyết định kỹ thuật và nghiệp vụ quan trọng đã được thống nhất trong quá trình phát triển dự án.
+---
 
+## DEC-001 — Sử dụng EndPoints làm nguồn thống kê thiết bị
 
+### Quyết định
 
-Mục đích:
+Sử dụng bảng `EndPoints` làm nguồn chính để xác định số lượng thiết bị đầu cuối.
 
+### Lý do
 
+Trong quá trình kiểm tra database, JOIN `EndPoints` với `Patients` có thể tạo ra các bản ghi trùng.
 
-\- Tránh quyết định lại những vấn đề đã thống nhất.
+Điều này dẫn đến số lượng thiết bị hiển thị không chính xác.
 
-\- Giúp ChatGPT và Codex hiểu lý do của các lựa chọn hiện tại.
+### Quy tắc
 
-\- Giúp các phiên làm việc sau tiếp tục đúng hướng.
+Không JOIN `Patients` chỉ để đếm thiết bị.
 
-\- Làm cơ sở tham khảo khi cần thay đổi kiến trúc hoặc nghiệp vụ.
+Nếu cần thông tin bệnh nhân, phải xử lý riêng theo mục đích cụ thể.
 
+---
 
+## DEC-002 — Giữ nguyên CodacoDb
 
-\---
+### Quyết định
 
+WebViewer tiếp tục sử dụng lớp `CodacoDb` hiện tại để truy cập database CODACO.
 
+Cơ chế hiện tại sử dụng:
 
-\# DEC-001 — Sử dụng EndPoints để xác định số lượng thiết bị
+```text
+C:\mysql57\bin\mysql.exe
+Lý do
 
+Đây là cơ chế đã được kiểm tra thực tế với database CODACO.
 
+Không thay đổi database access layer nếu chưa có yêu cầu rõ ràng và chưa kiểm tra ảnh hưởng.
 
-\*\*Ngày:\*\* 05/09/2026
+DEC-003 — Database CODACO chỉ đọc
+Quyết định
 
+WebViewer chỉ được phép đọc database CODACO.
 
+Không được thực hiện
+INSERT
+UPDATE
+DELETE
+TRUNCATE
+ALTER
+DROP
+CREATE
+Lý do
 
-\*\*Trạng thái:\*\* Đã thống nhất
+Database CODACO thuộc hệ thống Nurse Call đang vận hành.
 
+WebViewer phải hoàn toàn độc lập về mặt điều khiển và không được làm thay đổi dữ liệu vận hành.
 
+DEC-004 — Giữ frontend HTML/CSS/JavaScript
+Quyết định
 
-\## Vấn đề
+Frontend tiếp tục sử dụng:
 
+HTML
+CSS
+JavaScript
 
+Không chuyển sang framework frontend khác.
 
-Cần xác định chính xác số lượng thiết bị Nurse Call.
+Lý do
 
+Giao diện hiện tại đáp ứng được các chức năng cần thiết và có cấu trúc đơn giản.
 
+Việc chuyển framework không mang lại lợi ích cần thiết ở giai đoạn hiện tại.
 
-Database có bảng `EndPoints` và `Patients`.
+DEC-005 — API hiện tại là contract
+Quyết định
 
-
-
-Một MAC có thể xuất hiện trong nhiều bản ghi `Patients`.
-
-
-
-Nếu JOIN `Patients` vào truy vấn thống kê thiết bị, cùng một thiết bị có thể xuất hiện nhiều lần.
-
-
-
-Điều này dẫn đến:
-
-
-
-\- số lượng thiết bị bị đếm sai;
-
-\- dữ liệu Viewer có thể bị duplicate;
-
-\- thống kê dashboard không chính xác.
-
-
-
-\## Quyết định
-
-
-
-Sử dụng `EndPoints` làm nguồn dữ liệu chính để xác định số lượng thiết bị Nurse Call.
-
-
-
-Không sử dụng `Patients` để đếm số lượng thiết bị.
-
-
-
-Không JOIN `Patients` vào truy vấn thiết bị nếu không thực sự cần thiết.
-
-
-
-\## Ảnh hưởng
-
-
-
-`ViewerService` phải tuân thủ nguyên tắc này.
-
-
-
-Các chức năng thống kê số lượng thiết bị trong tương lai cũng phải tuân thủ nguyên tắc này.
-
-
-
-\---
-
-
-
-\# DEC-002 — Giữ CodacoDb làm lớp truy cập MySQL
-
-
-
-\*\*Ngày:\*\* 05/09/2026
-
-
-
-\*\*Trạng thái:\*\* Đã thống nhất
-
-
-
-\## Vấn đề
-
-
-
-Có thể sử dụng nhiều phương pháp để truy cập MySQL, ví dụ:
-
-
-
-\- Entity Framework;
-
-\- MySqlConnector;
-
-\- MySQL command line;
-
-\- các ORM hoặc data access layer khác.
-
-
-
-\## Quyết định
-
-
-
-Giữ nguyên `CodacoDb` hiện tại làm lớp truy cập database.
-
-
-
-Không tự ý chuyển sang Entity Framework hoặc provider khác.
-
-
-
-\## Lý do
-
-
-
-`NurseCallWebViewer` đang hoạt động dựa trên cơ chế hiện tại.
-
-
-
-Thay đổi database access layer có thể tạo ra phạm vi thay đổi lớn và không cần thiết đối với các task giao diện hoặc nghiệp vụ thông thường.
-
-
-
-\## Ảnh hưởng
-
-
-
-Các Service hiện tại tiếp tục sử dụng `CodacoDb`.
-
-
-
-Nếu trong tương lai cần thay đổi database access layer, phải có một quyết định kỹ thuật riêng.
-
-
-
-\---
-
-
-
-\# DEC-003 — Không thay đổi database Nurse Call nếu không cần thiết
-
-
-
-\*\*Ngày:\*\* 05/09/2026
-
-
-
-\*\*Trạng thái:\*\* Đã thống nhất
-
-
-
-\## Vấn đề
-
-
-
-`NurseCallWebViewer` kết nối tới database Nurse Call hiện có.
-
-
-
-Database này thuộc hệ thống Nurse Call đang vận hành.
-
-
-
-\## Quyết định
-
-
-
-Ứng dụng ưu tiên đọc dữ liệu từ database.
-
-
-
-Không tự ý:
-
-
-
-\- thay đổi schema;
-
-\- thêm bảng;
-
-\- sửa bảng;
-
-\- xóa dữ liệu;
-
-\- cập nhật dữ liệu;
-
-\- chạy migration;
-
-
-
-trên database hiện có.
-
-
-
-\## Lý do
-
-
-
-Ứng dụng Viewer cần hoạt động an toàn mà không ảnh hưởng đến hệ thống Nurse Call gốc.
-
-
-
-\## Ảnh hưởng
-
-
-
-Các task mới phải ưu tiên giải pháp xử lý ở tầng ứng dụng.
-
-
-
-Nếu bắt buộc phải thay đổi database, phải xác định rõ phạm vi và thống nhất trước.
-
-
-
-\---
-
-
-
-\# DEC-004 — Giữ frontend HTML/CSS/JavaScript hiện tại
-
-
-
-\*\*Ngày:\*\* 05/09/2026
-
-
-
-\*\*Trạng thái:\*\* Đã thống nhất
-
-
-
-\## Quyết định
-
-
-
-Tiếp tục sử dụng frontend hiện tại:
-
-
-
-\- HTML;
-
-\- CSS;
-
-\- JavaScript.
-
-
-
-Không tự ý chuyển sang:
-
-
-
-\- React;
-
-\- Vue;
-
-\- Angular;
-
-\- framework SPA khác.
-
-
-
-\## Lý do
-
-
-
-Giao diện hiện tại đơn giản và phù hợp với mục đích của ứng dụng.
-
-
-
-Việc chuyển framework sẽ tạo ra phạm vi thay đổi lớn không cần thiết.
-
-
-
-\## Ảnh hưởng
-
-
-
-Các cải tiến giao diện nên được thực hiện trên cấu trúc frontend hiện tại trước.
-
-
-
-\---
-
-
-
-\# DEC-005 — API hiện tại được xem là contract
-
-
-
-\*\*Ngày:\*\* 05/09/2026
-
-
-
-\*\*Trạng thái:\*\* Đã thống nhất
-
-
-
-\## Quyết định
-
-
-
-Các API hiện tại được xem là contract của ứng dụng.
-
-
+Các API hiện tại được xem là contract giữa backend và frontend.
 
 Các API chính:
 
+/api/departments
+/api/endpoints
+/api/viewer
+/api/calls
+/api/presence
+/api/hardware
+/api/history
+/api/history/export
+Quy tắc
 
+Trước khi thay đổi API phải kiểm tra frontend đang sử dụng API đó.
 
-```text
+Không đổi tên field hoặc cấu trúc response nếu không cần thiết.
 
-GET /api/departments
+Nếu bắt buộc phải thay đổi, phải cập nhật đồng thời các thành phần liên quan.
 
-GET /api/endpoints
-
-GET /api/viewer
-
-GET /api/history
-
-GET /api/history/export
-
-GET /api/calls
-
-GET /api/presence
-
-GET /api/hardware
-
-
-
-Không tự ý xóa API hoặc thay đổi cấu trúc response nếu không kiểm tra ảnh hưởng đến frontend.
-
-
-
-Lý do
-
-
-
-Frontend hiện tại phụ thuộc vào các API này.
-
-
-
-Thay đổi backend có thể làm hỏng giao diện mà không gây lỗi compile.
-
-
-
-DEC-006 — Ưu tiên thay đổi nhỏ và có kiểm chứng
-
-
-
-Ngày: 05/09/2026
-
-
-
-Trạng thái: Đã thống nhất
-
-
-
+DEC-006 — Ưu tiên thay đổi nhỏ
 Quyết định
 
+Ưu tiên các thay đổi nhỏ, độc lập và có thể kiểm tra được.
 
+Quy tắc
 
-Khi phát triển tính năng mới hoặc sửa lỗi:
+Mỗi thay đổi nên:
 
-
-
-ưu tiên thay đổi nhỏ;
-
-tránh refactor lớn nếu không cần;
-
-không thay đổi kiến trúc chỉ vì có một cách khác "đẹp hơn";
-
-kiểm tra code hiện tại trước khi sửa;
-
-build sau khi thay đổi;
-
-kiểm tra các chức năng bị ảnh hưởng.
-
+Xác định rõ file cần sửa.
+Giữ nguyên các chức năng đang hoạt động.
+Build sau khi thay đổi.
+Test chức năng liên quan.
+Commit thành một thay đổi có ý nghĩa.
 Lý do
 
+Giảm nguy cơ làm hỏng những chức năng đã hoạt động ổn định.
 
+Đặc biệt quan trọng đối với hệ thống đang được phát triển dựa trên một hệ thống Nurse Call thực tế.
 
-Project đang được sử dụng thực tế.
-
-
-
-Ổn định và khả năng kiểm soát thay đổi quan trọng hơn việc tối ưu kiến trúc một cách quá mức.
-
-
-
-DEC-007 — Tài liệu dự án là bộ nhớ dài hạn
-
-
-
-Ngày: 06/09/2026
-
-
-
-Trạng thái: Đã thống nhất
-
-
-
+DEC-007 — Tài liệu là nguồn ghi nhớ lâu dài của dự án
 Quyết định
 
+Các kiến thức quan trọng không chỉ được giữ trong source code hoặc hội thoại mà phải được ghi lại trong tài liệu.
 
-
-Các thông tin quan trọng không chỉ được lưu trong cuộc trò chuyện với ChatGPT.
-
-
-
-Chúng phải được lưu trong repository.
-
-
-
-Ba tài liệu chính:
-
-
+Các tài liệu quan trọng:
 
 AGENTS.md
-
-docs/PROJECT\_CONTEXT.md
-
+docs/PROJECT_CONTEXT.md
 docs/ARCHITECTURE.md
-
 docs/DECISIONS.md
-
+docs/CODACO_REVERSE_ENGINEERING.md
+docs/DATABASE.md
 Vai trò
 
-AGENTS.md
+PROJECT_CONTEXT.md
 
-
-
-Quy định Codex phải làm việc như thế nào.
-
-
-
-PROJECT\_CONTEXT.md
-
-
-
-Mô tả project là gì và trạng thái hiện tại.
-
-
+→ Bối cảnh và thông tin tổng thể của dự án.
 
 ARCHITECTURE.md
 
-
-
-Mô tả project được xây dựng và vận hành như thế nào.
-
-
+→ Kiến trúc và luồng dữ liệu hiện tại.
 
 DECISIONS.md
 
+→ Các quyết định kỹ thuật quan trọng.
 
+CODACO_REVERSE_ENGINEERING.md
 
-Ghi lại những quyết định quan trọng và lý do tại sao chúng được lựa chọn.
+→ Kết quả reverse engineering hệ thống CODACO.
 
+DATABASE.md
 
+→ Schema và thông tin database đã xác minh.
 
-Mục tiêu
+Lý do
 
+Dự án phụ thuộc nhiều vào việc hiểu đúng hệ thống CODACO hiện có.
 
+Các kiến thức này cần được bảo tồn để những lần phát triển sau không phải phân tích lại từ đầu.
 
-Khi chuyển giữa:
+DEC-008 — Định danh Department bằng Segment + Department
+Quyết định
 
+Không coi idDepartment là định danh duy nhất của khoa.
 
+Định danh đầy đủ là:
 
-ChatGPT;
+idSegment + idDepartment
+Lý do
 
-Codex trong ChatGPT;
+Các bảng CODACO sử dụng cả idSegment và idDepartment.
 
-Codex CLI;
+Do đó việc chỉ sử dụng idDepartment có thể dẫn đến nhầm dữ liệu nếu hệ thống có nhiều segment.
 
-các phiên làm việc khác;
+Quy tắc
 
+Các JOIN hoặc filter liên quan đến Department phải sử dụng:
 
+idSegment
+idDepartment
+DEC-009 — Định danh Room phải bao gồm Department
+Quyết định
 
-Codex có thể đọc repository và khôi phục phần lớn bối cảnh mà không cần người dùng giải thích lại từ đầu.
+Không sử dụng riêng Room để xác định phòng.
 
+Định danh đầy đủ:
 
+idSegment
+idDepartment
+Room
+Lý do
 
-Quy tắc cập nhật DECISIONS.md
+Các khoa có thể có cùng số phòng.
 
+Ví dụ:
 
+Khoa A - Room 4
+Khoa B - Room 4
 
-Chỉ ghi những quyết định có giá trị lâu dài.
+là hai phòng khác nhau.
 
+Quy tắc
 
+Khi lấy HardwareState hoặc dữ liệu phòng phải lọc theo đầy đủ:
 
-Không cần ghi:
+idSegment
+idDepartment
+Room
+DEC-010 — EndPoints là nguồn chính cho device count
+Quyết định
 
+Số lượng thiết bị hiển thị trên Dashboard phải dựa trên dữ liệu EndPoints.
 
+Lý do
 
-bug nhỏ;
+EndPoints đại diện cho các endpoint thiết bị của hệ thống.
 
-lỗi typo;
+Không sử dụng số lượng bản ghi của bảng khác để suy ra tổng thiết bị nếu không có lý do rõ ràng.
 
-thay đổi CSS nhỏ;
+DEC-011 — HardwareState phải lọc theo full room identity
+Quyết định
 
-sửa lỗi tạm thời;
+Khi hiển thị HardwareState của một phòng, phải sử dụng:
 
-những thử nghiệm chưa được thống nhất.
+idSegment
+idDepartment
+Room
+Lý do
 
+Chỉ sử dụng Room có thể lấy nhầm thiết bị từ khoa khác.
 
+Đây là nguyên nhân của lỗi hiển thị thiết bị phòng đã được phát hiện trong quá trình phát triển.
 
-Nên ghi khi có quyết định liên quan đến:
+DEC-012 — Calls sử dụng AccesorButtonId
+Quyết định
 
+Trong model và logic xử lý bảng Calls, sử dụng field:
 
+AccesorButtonId
+Lý do
 
-kiến trúc;
+Đây là tên field thực tế trong schema CODACO.
 
-database;
+Không sử dụng:
 
-API;
+ButtonId
 
-nghiệp vụ;
+nếu không có field tương ứng trong database.
 
-cách tính toán dữ liệu;
+DEC-013 — Realtime sử dụng polling
+Quyết định
 
-công nghệ;
+Frontend hiện cập nhật dữ liệu realtime bằng cách polling API.
 
-bảo mật;
+Các dữ liệu chính được cập nhật định kỳ gồm:
 
-cách tổ chức project;
+Calls
+Presence
+Viewer
+Lý do
 
-những vấn đề đã được tranh luận và thống nhất.
+Polling đơn giản, dễ kiểm tra và phù hợp với kiến trúc hiện tại.
 
+Chưa cần chuyển sang WebSocket hoặc SignalR nếu chưa có yêu cầu thực tế.
 
+DEC-014 — Phát hiện cuộc gọi mới ở frontend
+Quyết định
 
-Mỗi quyết định mới sử dụng ID tiếp theo:
+Frontend có thể duy trì danh sách key của các cuộc gọi đã quan sát để phát hiện cuộc gọi mới giữa các lần polling.
 
+Quy tắc
+Lần tải đầu tiên không tạo cảnh báo.
+Chỉ cuộc gọi xuất hiện mới sau lần polling trước mới được xem là cuộc gọi mới.
+Key phải được tạo từ các trường nhận diện ổn định của cuộc gọi.
+Việc phát hiện cuộc gọi mới không được ghi dữ liệu trở lại CODACO.
+DEC-015 — History export sử dụng ClosedXML
+Quyết định
 
+Sử dụng thư viện ClosedXML để tạo file Excel từ dữ liệu History.
 
-DEC-008
+Lý do
 
+ClosedXML cung cấp API thuận tiện để tạo file .xlsx và định dạng worksheet.
 
+Quy tắc
 
-DEC-009
+Excel được tạo từ dữ liệu đọc từ database.
 
+Không thay đổi dữ liệu History trong quá trình export.
 
+DEC-016 — Phân biệt kiến trúc hiện tại và đề xuất tương lai
+Quyết định
 
-DEC-010
+Tài liệu kỹ thuật phải phân biệt rõ:
 
+Current
+Proposed
+Lý do
 
+Trong quá trình phát triển có thể xuất hiện nhiều phương án cải tiến.
 
-...
+Một phương án được thảo luận không có nghĩa là nó đã được triển khai.
 
+Quy tắc
 
-
-Không sửa/xóa quyết định cũ chỉ vì sau này có quyết định mới.
-
-
-
-Nếu một quyết định bị thay thế, giữ lại quyết định cũ và ghi rõ quyết định mới thay thế nó.
-
+Không mô tả một thành phần chưa triển khai như một phần của kiến trúc hiện tại.
