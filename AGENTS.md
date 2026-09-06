@@ -158,3 +158,21 @@ Tài liệu dự án có thể viết bằng tiếng Việt.
 Tên class, method, property, API, database table, field và các technical identifier phải giữ nguyên theo code thực tế.
 
 Khi trao đổi với người dùng, ưu tiên tiếng Việt.
+
+## 14.Quy tắc Git
+- Không tự ý tạo branch mới nếu người dùng chưa yêu cầu.
+- Không tự ý commit nếu người dùng chưa yêu cầu.
+- Không tự ý push lên remote nếu người dùng chưa yêu cầu.
+- Không tự ý amend hoặc sửa các commit đã tồn tại.
+- Sau khi hoàn thành task, phải kiểm tra git status.
+- Phải báo rõ những file đã thay đổi.
+- Phải báo rõ kết quả build/test.
+- Khi có thay đổi ngoài phạm vi task, phải thông báo trước.
+
+## 15. Database an toàn
+
+- Không tự ý INSERT, UPDATE hoặc DELETE dữ liệu Nurse Call.
+- Không tự ý ALTER, DROP hoặc thay đổi schema database.
+- Các truy vấn database trong quá trình phát triển phải ưu tiên SELECT.
+- Không chạy script thay đổi database production nếu chưa có sự xác nhận rõ ràng của người dùng.
+- Không tự ý thay đổi connection string hoặc thông tin kết nối database.
