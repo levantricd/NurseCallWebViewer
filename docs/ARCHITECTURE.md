@@ -26,11 +26,13 @@ ASP.NET Core
           ▼
    MySQL - CodacoNC
    172.16.0.9:3306
+```
+
    WebViewer không điều khiển hệ thống Nurse Call.
 
 WebViewer chỉ đọc dữ liệu từ database CODACO.
 
-2. Thành phần chính
+# 2. Thành phần chính
 
 Project hiện tại:
 
@@ -56,7 +58,7 @@ NurseCallWebViewer/
 │   └── PROJECT_CONTEXT.md
 │
 └── AGENTS.md
-3. ASP.NET Core
+# 3. ASP.NET Core
 
 Ứng dụng sử dụng ASP.NET Core.
 
@@ -70,7 +72,7 @@ Mapping các endpoint HTTP.
 
 Frontend gọi API trực tiếp từ trình duyệt.
 
-4. Services
+# 4. Services
 CallService
 
 Đọc dữ liệu từ bảng:
@@ -203,7 +205,7 @@ File Excel được tạo bằng:
 
 ClosedXML
 
-5. Database access
+# 5. Database access
 
 CodacoDb là lớp chịu trách nhiệm thực hiện truy vấn database.
 
@@ -238,7 +240,7 @@ CREATE
 
 trên database CODACO.
 
-6. Database CODACO
+# 6. Database CODACO
 
 Database:
 
@@ -258,7 +260,7 @@ Các phát hiện từ reverse engineering được ghi trong:
 
 docs/CODACO_REVERSE_ENGINEERING.md
 
-7. Data identity
+# 7. Data identity
 Department identity
 (idSegment, idDepartment)
 Room identity
@@ -268,7 +270,7 @@ Bed identity
 
 Khi JOIN hoặc lọc dữ liệu phải sử dụng đầy đủ các thành phần nhận diện cần thiết.
 
-8. Calls
+# 8. Calls
 
 Bảng:
 
@@ -295,7 +297,7 @@ AccesorButtonId
 Không sử dụng tên:
 
 ButtonId
-9. Realtime
+# 9. Realtime
 
 WebViewer hiện sử dụng polling từ browser.
 
@@ -319,7 +321,7 @@ Lần tải đầu tiên không được coi toàn bộ cuộc gọi hiện tạ
 
 Các lần polling tiếp theo chỉ đánh dấu những cuộc gọi chưa xuất hiện ở lần trước.
 
-10. Frontend
+# 10. Frontend
 
 Frontend hiện sử dụng:
 
@@ -336,7 +338,7 @@ wwwroot/history.html
 wwwroot/site.css
 wwwroot/site.js
 wwwroot/history.js
-11. Dashboard
+# 11. Dashboard
 
 Dashboard chính hiển thị:
 
@@ -358,7 +360,7 @@ Khoa
 Thiết bị
 Lịch sử
 Hệ thống
-12. History và Excel
+# 12. History và Excel
 
 Trang:
 
@@ -393,7 +395,7 @@ Giờ bắt đầu
 Ngày kết thúc
 Giờ kết thúc
 Thời gian
-13. Duplicate avoidance
+# 13. Duplicate avoidance
 
 Một lỗi quan trọng đã được xác định trong quá trình phát triển:
 
@@ -412,7 +414,7 @@ EndPoints
 
 là nguồn chính cho device count.
 
-14. Hardware room detail
+# 14. Hardware room detail
 
 Khi người dùng mở chi tiết thiết bị của một phòng, frontend/API phải xác định phòng bằng:
 
@@ -431,7 +433,7 @@ Phải xác định:
 idSegment = ...
 idDepartment = ...
 Room = 4
-15. API hiện tại
+# 15. API hiện tại
 API	Chức năng
 /api/departments	Danh sách khoa
 /api/endpoints	Thiết bị đầu cuối
@@ -446,7 +448,7 @@ Các API này là interface giữa frontend và backend.
 
 Không thay đổi contract nếu không kiểm tra frontend trước.
 
-16. Nguyên tắc an toàn
+# 16. Nguyên tắc an toàn
 
 WebViewer là hệ thống giám sát/hiển thị.
 
@@ -461,7 +463,7 @@ Thay đổi bệnh nhân.
 
 Mọi thao tác đều phải giữ nguyên hệ thống CODACO đang vận hành.
 
-17. Nguyên tắc thay đổi kiến trúc
+# 17. Nguyên tắc thay đổi kiến trúc
 
 Trước khi thay đổi kiến trúc:
 
@@ -474,7 +476,7 @@ Nếu một thay đổi ảnh hưởng đến cách truy cập database, API ho�
 
 Không thực hiện refactor lớn chỉ để thay đổi cách viết code nếu kiến trúc hiện tại vẫn đáp ứng yêu cầu.
 
-18. Phân biệt hiện tại và đề xuất
+# 18. Phân biệt hiện tại và đề xuất
 
 Tài liệu kiến trúc phải phân biệt rõ:
 
