@@ -26,7 +26,7 @@ Nếu cần thông tin bệnh nhân, phải xử lý riêng theo mục đích c�
 
 ---
 
-## DEC-002 — Giữ nguyên CodacoDb
+### DEC-002 — Giữ nguyên CodacoDb
 
 ### Quyết định
 
@@ -44,7 +44,7 @@ C:\mysql57\bin\mysql.exe
 
 Không thay đổi database access layer nếu chưa có yêu cầu rõ ràng và chưa kiểm tra ảnh hưởng.
 
-## DEC-003 — Database CODACO chỉ đọc
+### DEC-003 — Database CODACO chỉ đọc
 
 ### Quyết định
 
@@ -64,7 +64,7 @@ Database CODACO thuộc hệ thống Nurse Call đang vận hành.
 
 WebViewer phải hoàn toàn độc lập về mặt điều khiển và không được làm thay đổi dữ liệu vận hành.
 
-## DEC-004 — Giữ frontend HTML/CSS/JavaScript
+### DEC-004 — Giữ frontend HTML/CSS/JavaScript
 
 ### Quyết định
 
@@ -82,7 +82,7 @@ Giao diện hiện tại đáp ứng được các chức năng cần thiết v�
 
 Việc chuyển framework không mang lại lợi ích cần thiết ở giai đoạn hiện tại.
 
-## DEC-005 — API hiện tại là contract
+### DEC-005 — API hiện tại là contract
 
 ### Quyết định
 
@@ -106,7 +106,7 @@ Không đổi tên field hoặc cấu trúc response nếu không cần thiết.
 
 Nếu bắt buộc phải thay đổi, phải cập nhật đồng thời các thành phần liên quan.
 
-## DEC-006 — Ưu tiên thay đổi nhỏ
+### DEC-006 — Ưu tiên thay đổi nhỏ
 
 ### Quyết định
 
@@ -127,7 +127,7 @@ Giảm nguy cơ làm hỏng những chức năng đã hoạt động ổn địn
 
 Đặc biệt quan trọng đối với hệ thống đang được phát triển dựa trên một hệ thống Nurse Call thực tế.
 
-## DEC-007 — Tài liệu là nguồn ghi nhớ lâu dài của dự án
+### DEC-007 — Tài liệu là nguồn ghi nhớ lâu dài của dự án
 
 ### Quyết định
 
@@ -169,7 +169,7 @@ Dự án phụ thuộc nhiều vào việc hiểu đúng hệ thống CODACO hi�
 
 Các kiến thức này cần được bảo tồn để những lần phát triển sau không phải phân tích lại từ đầu.
 
-## DEC-008 — Định danh Department bằng Segment + Department
+### DEC-008 — Định danh Department bằng Segment + Department
 
 ### Quyết định
 
@@ -190,7 +190,7 @@ Các JOIN hoặc filter liên quan đến Department phải sử dụng:
 
 idSegment
 idDepartment
-## DEC-009 — Định danh Room phải bao gồm Department
+### DEC-009 — Định danh Room phải bao gồm Department
 
 ### Quyết định
 
@@ -219,7 +219,7 @@ Khi lấy HardwareState hoặc dữ liệu phòng phải lọc theo đầy đủ
 idSegment
 idDepartment
 Room
-## DEC-010 — EndPoints là nguồn chính cho device count
+### DEC-010 — EndPoints là nguồn chính cho device count
 
 ### Quyết định
 
@@ -231,7 +231,7 @@ EndPoints đại diện cho các endpoint thiết bị của hệ thống.
 
 Không sử dụng số lượng bản ghi của bảng khác để suy ra tổng thiết bị nếu không có lý do rõ ràng.
 
-## DEC-011 — HardwareState phải lọc theo full room identity
+### DEC-011 — HardwareState phải lọc theo full room identity
 
 ### Quyết định
 
@@ -246,7 +246,7 @@ Chỉ sử dụng Room có thể lấy nhầm thiết bị từ khoa khác.
 
 Đây là nguyên nhân của lỗi hiển thị thiết bị phòng đã được phát hiện trong quá trình phát triển.
 
-## DEC-012 — Calls sử dụng AccesorButtonId
+### DEC-012 — Calls sử dụng AccesorButtonId
 
 ### Quyết định
 
@@ -263,7 +263,7 @@ ButtonId
 
 nếu không có field tương ứng trong database.
 
-## DEC-013 — Realtime sử dụng polling
+### DEC-013 — Realtime sử dụng polling
 
 ### Quyết định
 
@@ -280,7 +280,7 @@ Polling đơn giản, dễ kiểm tra và phù hợp với kiến trúc hiện t
 
 Chưa cần chuyển sang WebSocket hoặc SignalR nếu chưa có yêu cầu thực tế.
 
-## DEC-014 — Phát hiện cuộc gọi mới ở frontend
+### DEC-014 — Phát hiện cuộc gọi mới ở frontend
 
 ### Quyết định
 
@@ -291,7 +291,7 @@ Lần tải đầu tiên không tạo cảnh báo.
 Chỉ cuộc gọi xuất hiện mới sau lần polling trước mới được xem là cuộc gọi mới.
 Key phải được tạo từ các trường nhận diện ổn định của cuộc gọi.
 Việc phát hiện cuộc gọi mới không được ghi dữ liệu trở lại CODACO.
-## DEC-015 — History export sử dụng ClosedXML
+### DEC-015 — History export sử dụng ClosedXML
 
 ### Quyết định
 

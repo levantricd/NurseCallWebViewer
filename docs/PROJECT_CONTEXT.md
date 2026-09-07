@@ -36,7 +36,7 @@ CODACO_REVERSE_ENGINEERING.md chứa các phát hiện về phần mềm cũ, SQ
 
 DATABASE.md chứa schema và thông tin database đã được xác minh.
 
-# 3. Database CODACO
+## 3. Database CODACO
 
 Database:
 
@@ -69,7 +69,7 @@ WebViewer chỉ đọc dữ liệu từ database.
 
 Không được thay đổi dữ liệu hoặc schema của hệ thống CODACO.
 
-# 4. Công nghệ WebViewer
+## 4. Công nghệ WebViewer
 
 Backend:
 
@@ -91,7 +91,7 @@ JavaScript
 Excel:
 
 ClosedXML
-# 5. Cấu trúc project
+## 5. Cấu trúc project
 NurseCallWebViewer/
 │
 ├── NurseCall.Web/
@@ -114,7 +114,7 @@ NurseCallWebViewer/
 │   └── PROJECT_CONTEXT.md
 │
 └── AGENTS.md
-# 6. Services hiện tại
+## 6. Services hiện tại
 
 Các service chính:
 
@@ -189,7 +189,7 @@ History
 Xem lịch sử.
 Lọc lịch sử.
 Xuất Excel.
-# 7. API
+## 7. API
 
 Các API hiện tại:
 
@@ -204,7 +204,7 @@ Các API hiện tại:
 
 Frontend sử dụng các API này để lấy dữ liệu.
 
-# 8. Quy tắc định danh dữ liệu
+## 8. Quy tắc định danh dữ liệu
 Department
 
 Department được xác định bằng:
@@ -228,7 +228,7 @@ Bed
 Bed được xác định bằng:
 
 idSegment + idDepartment + Room + Bed
-# 9. EndPoints và Patients
+## 9. EndPoints và Patients
 
 EndPoints là nguồn chính để xác định thiết bị đầu cuối.
 
@@ -242,7 +242,7 @@ chỉ để đếm thiết bị.
 
 Lý do là JOIN có thể tạo ra bản ghi trùng và làm sai số lượng thiết bị hiển thị.
 
-# 10. HardwareState
+## 10. HardwareState
 
 Khi lấy thiết bị phần cứng của một phòng, phải xác định phòng bằng:
 
@@ -261,7 +261,7 @@ Phải sử dụng đầy đủ:
 idSegment
 idDepartment
 Room = 4
-# 11. Calls
+## 11. Calls
 
 Bảng:
 
@@ -288,7 +288,7 @@ AccesorButtonId
 Không dùng:
 
 ButtonId
-# 12. Presence
+## 12. Presence
 
 Bảng:
 
@@ -299,7 +299,7 @@ Mapping hiện tại:
 TypeOfPresence = 1 → Điều dưỡng
 TypeOfPresence = 2 → Điều dưỡng
 TypeOfPresence = 3 → Bác sĩ
-# 13. History
+## 13. History
 
 Bảng:
 
@@ -315,7 +315,7 @@ Xuất history ra Excel.
 
 Không sửa dữ liệu trong bảng History.
 
-# 14. Excel Export
+## 14. Excel Export
 
 History được xuất thành file:
 
@@ -342,7 +342,7 @@ Giờ bắt đầu
 Ngày kết thúc
 Giờ kết thúc
 Thời gian
-# 15. Realtime
+## 15. Realtime
 
 WebViewer hiện sử dụng polling.
 
@@ -362,7 +362,7 @@ Khi một cuộc gọi xuất hiện mà chưa tồn tại trong lần polling t
 
 Lần tải đầu tiên không được coi các cuộc gọi hiện có là cuộc gọi mới.
 
-# 16. Dashboard
+## 16. Dashboard
 
 Dashboard hiện có các khu vực:
 
@@ -381,7 +381,7 @@ Cuộc gọi
 Hiện diện
 Phòng
 Thiết bị
-# 17. Test mode
+## 17. Test mode
 
 Frontend có test mode cho cuộc gọi để kiểm tra giao diện mà không cần tạo cuộc gọi thật trên hệ thống Nurse Call.
 
@@ -397,7 +397,7 @@ Test mode chỉ tạo dữ liệu giả ở frontend.
 
 Không ghi dữ liệu vào CODACO.
 
-# 18. Nguyên tắc an toàn
+## 18. Nguyên tắc an toàn
 
 WebViewer phải đảm bảo:
 
@@ -415,7 +415,7 @@ Thay đổi calls.
 Thay đổi bệnh nhân.
 Thay đổi cấu hình Nurse Call.
 Điều khiển thiết bị.
-# 19. Những điều cần nhớ khi phát triển
+## 19. Những điều cần nhớ khi phát triển
 Không nhầm Room
 
 Không dùng:
@@ -460,7 +460,7 @@ READ ONLY
 
 đối với hệ thống CODACO.
 
-# 20. Tài liệu tham chiếu
+## 20. Tài liệu tham chiếu
 
 Khi cần hiểu hệ thống, đọc theo thứ tự:
 
@@ -484,7 +484,7 @@ ARCHITECTURE.md → kiến trúc.
 DECISIONS.md → quyết định kỹ thuật.
 CODACO_REVERSE_ENGINEERING.md → reverse engineering.
 DATABASE.md → database/schema.
-# 21. Trạng thái hiện tại
+## 21. Trạng thái hiện tại
 
 Các chức năng WebViewer hiện đã có:
 
@@ -503,7 +503,7 @@ Phát hiện cuộc gọi mới ở frontend.
 
 Các chức năng đang hoạt động phải được giữ nguyên khi phát triển thêm.
 
-# 22. Nguyên tắc phát triển tiếp theo
+## 22. Nguyên tắc phát triển tiếp theo
 
 Khi bổ sung chức năng:
 
