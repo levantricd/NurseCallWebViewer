@@ -637,7 +637,7 @@
 
             calls: "active-calls",
 
-            rooms: "viewer",
+            rooms: "departments",
 
             presence: "presence",
 
@@ -781,41 +781,6 @@
 
                 return;
             }
-
-
-            // Ưu tiên vùng Phòng & giường
-            const viewer =
-                document.getElementById("viewer");
-
-            if (viewer) {
-
-                const viewerTop =
-                    viewer.getBoundingClientRect().top +
-                    window.scrollY;
-
-                if (marker >= viewerTop) {
-
-                    const departments =
-                        document.getElementById("departments");
-
-                    const hardware =
-                        document.getElementById("hardware");
-
-                    const hardwareTop =
-                        hardware
-                            ? hardware.getBoundingClientRect().top +
-                            window.scrollY
-                            : Infinity;
-
-                    if (marker < hardwareTop) {
-
-                        setActiveMenu("rooms");
-
-                        return;
-                    }
-                }
-            }
-
 
             const sections = [
 
