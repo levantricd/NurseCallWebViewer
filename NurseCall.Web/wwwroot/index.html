@@ -586,7 +586,7 @@
 
 
         // =========================================================
-        // MOBILE SIDEBAR
+        // SIDEBAR + SECTION NAVIGATION
         // =========================================================
 
         const toggle =
@@ -597,6 +597,12 @@
 
         const overlay =
             document.getElementById("sidebar-overlay");
+
+        const topbar =
+            document.querySelector(".topbar");
+
+        const menuItems =
+            document.querySelectorAll(".menu-item");
 
 
         function closeSidebar() {
@@ -621,19 +627,286 @@
         );
 
 
-        document
-            .querySelectorAll(".menu-item")
-            .forEach(item => {
+        // ---------------------------------------------------------
+        // MENU TARGETS
+        // ---------------------------------------------------------
 
-                item.addEventListener("click", () => {
+        const menuTargets = {
 
-                    if (window.innerWidth <= 900) {
-                        closeSidebar();
-                    }
+            dashboard: null,
 
-                });
+            calls: "active-calls",
+
+            rooms: "viewer",
+
+            presence: "presence",
+
+            departments: "departments",
+
+            hardware: "hardware",
+
+            history: null,
+
+            system: "system"
+
+        };
+
+
+        // ---------------------------------------------------------
+        // ACTIVE MENU
+        // ---------------------------------------------------------
+
+        function setActiveMenu(menuName) {
+
+            menuItems.forEach(item => {
+
+                item.classList.toggle(
+                    "active",
+                    item.dataset.menu === menuName
+                );
 
             });
+
+        }
+
+
+        // ---------------------------------------------------------
+        // SCROLL TO SECTION
+        // ---------------------------------------------------------
+
+        function scrollToTarget(targetId) {
+
+            const target =
+                document.getElementById(targetId);
+
+            if (!target)
+                return;
+
+            const topbarHeight =
+                topbar?.offsetHeight || 0;
+
+            const offset = topbarHeight + 16;
+
+            const targetTop =
+                target.getBoundingClientRect().top +
+                window.scrollY -
+                offset;
+
+            window.scrollTo({
+
+                top: Math.max(0, targetTop),
+
+                behavior: "smooth"
+
+            });
+
+        }
+
+
+        // ---------------------------------------------------------
+        // MENU CLICK
+        // ---------------------------------------------------------
+
+        menuItems.forEach(item => {
+
+            item.addEventListener("click", event => {
+
+                const menuName =
+                    item.dataset.menu;
+
+                const targetId =
+                    menuTargets[menuName];
+
+                // Dashboard
+                if (menuName === "dashboard") {
+
+                    event.preventDefault();
+
+                    window.scrollTo({
+
+                        top: 0,
+
+                        behavior: "smooth"
+
+                    });
+
+                    setActiveMenu("dashboard");
+
+                    closeSidebar();
+
+                    return;
+                }
+
+
+                // Internal section
+                if (targetId) {
+
+                    event.preventDefault();
+
+                    setActiveMenu(menuName);
+
+                    scrollToTarget(targetId);
+
+                    closeSidebar();
+
+                }
+
+            });
+
+        });
+
+
+        // ---------------------------------------------------------
+        // UPDATE ACTIVE MENU WHEN USER SCROLLS
+        // ---------------------------------------------------------
+
+        let scrollTicking = false;
+
+
+        function updateActiveMenuFromScroll() {
+
+            const topbarHeight =
+                topbar?.offsetHeight || 0;
+
+            const marker =
+                window.scrollY +
+                topbarHeight +
+                40;
+
+
+            // Đầu trang
+            if (window.scrollY < 80) {
+
+                setActiveMenu("dashboard");
+
+                return;
+            }
+
+
+            // Ưu tiên vùng Phòng & giường
+            const viewer =
+                document.getElementById("viewer");
+
+            if (viewer) {
+
+                const viewerTop =
+                    viewer.getBoundingClientRect().top +
+                    window.scrollY;
+
+                if (marker >= viewerTop) {
+
+                    const departments =
+                        document.getElementById("departments");
+
+                    const hardware =
+                        document.getElementById("hardware");
+
+                    const hardwareTop =
+                        hardware
+                            ? hardware.getBoundingClientRect().top +
+                            window.scrollY
+                            : Infinity;
+
+                    if (marker < hardwareTop) {
+
+                        setActiveMenu("rooms");
+
+                        return;
+                    }
+                }
+            }
+
+
+            const sections = [
+
+                {
+                    menu: "calls",
+                    id: "active-calls"
+                },
+
+                {
+                    menu: "presence",
+                    id: "presence"
+                },
+
+                {
+                    menu: "departments",
+                    id: "departments"
+                },
+
+                {
+                    menu: "hardware",
+                    id: "hardware"
+                },
+
+                {
+                    menu: "system",
+                    id: "system"
+                }
+
+            ];
+
+
+            let currentMenu = "dashboard";
+
+
+            sections.forEach(section => {
+
+                const element =
+                    document.getElementById(section.id);
+
+                if (!element)
+                    return;
+
+                const top =
+                    element.getBoundingClientRect().top +
+                    window.scrollY;
+
+                if (marker >= top) {
+
+                    currentMenu =
+                        section.menu;
+
+                }
+
+            });
+
+
+            setActiveMenu(currentMenu);
+
+        }
+
+
+        window.addEventListener("scroll", () => {
+
+            if (scrollTicking)
+                return;
+
+            scrollTicking = true;
+
+            window.requestAnimationFrame(() => {
+
+                updateActiveMenuFromScroll();
+
+                scrollTicking = false;
+
+            });
+
+        });
+
+
+        window.addEventListener("resize", () => {
+
+            updateActiveMenuFromScroll();
+
+        });
+
+
+        // Initial state
+        updateActiveMenuFromScroll();
+
+
+
 
     </script>
 
