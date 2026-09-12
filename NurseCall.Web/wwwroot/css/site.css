@@ -1348,3 +1348,50 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* ============================================================
+   NEW ACTIVE CALL ALERT
+   ============================================================ */
+
+.call-new {
+    animation: call-new-pulse 1s ease-in-out infinite;
+}
+
+@keyframes call-new-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px rgba(220, 38, 38, .18);
+    }
+}
+
+.call-new.call-emergency {
+    animation: call-emergency-pulse .8s ease-in-out infinite;
+}
+
+@keyframes call-emergency-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(220, 38, 38, .28);
+    }
+}
+
+.call-new.call-blue-code {
+    animation: call-blue-pulse .8s ease-in-out infinite;
+}
+
+@keyframes call-blue-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(37, 99, 235, .28);
+    }
+}
