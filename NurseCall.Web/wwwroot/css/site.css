@@ -230,7 +230,7 @@ body {
     background: rgba(0, 0, 0, .45);
 }
 
-.room-modal-content {
+.room-modal-dialog {
     position: relative;
     z-index: 1;
     width: min(900px, calc(100% - 32px));
