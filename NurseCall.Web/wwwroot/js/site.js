@@ -2,6 +2,8 @@
 let callsCache = [];
 let presenceCache = [];
 let hardwareCache = [];
+let previousCallKeys = new Set();
+let callsInitialized = false;
 
 const CALL_POLL_INTERVAL = 2000;
 const PRESENCE_POLL_INTERVAL = 2000;
@@ -453,8 +455,35 @@ function renderCalls(calls) {
         summary.textContent =
             "Không có cuộc gọi";
 
+        previousCallKeys.clear();
+        callsInitialized = true;
+
         return;
     }
+
+
+    // --------------------------------------------------------
+    // Phát hiện cuộc gọi mới
+    // --------------------------------------------------------
+
+    const currentCallKeys =
+        new Set(
+            calls.map(call => getCallKey(call))
+        );
+
+    const newCallKeys =
+        callsInitialized
+            ? new Set(
+                [...currentCallKeys].filter(
+                    key => !previousCallKeys.has(key)
+                )
+            )
+            : new Set();
+
+    previousCallKeys =
+        currentCallKeys;
+
+    callsInitialized = true;
 
 
     // --------------------------------------------------------
@@ -469,17 +498,44 @@ function renderCalls(calls) {
 
     calls.forEach(call => {
 
-        callsList.appendChild(
-            createCallCard(call)
-        );
+        const card =
+            createCallCard(call);
+
+        const key =
+            getCallKey(call);
+
+        if (newCallKeys.has(key)) {
+
+            card.classList.add("call-new");
+
+            setTimeout(() => {
+
+                card.classList.remove("call-new");
+
+            }, 5000);
+        }
+
+        callsList.appendChild(card);
     });
+}
+
+function getCallKey(call) {
+
+    return [
+        call.idSegment ?? "",
+        call.idDepartment ?? "",
+        call.room ?? "",
+        call.bed ?? "",
+        call.typeOfCall ?? "",
+        call.callerExtBed ?? "",
+        call.accesorButtonId ?? ""
+    ].join("|");
 }
 
 
 // ============================================================
 // CREATE CALL CARD
 // ============================================================
-
 function createCallCard(call) {
 
     const card =
